@@ -2,6 +2,8 @@
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
+import 'screens/find_password_screen.dart';
+import 'screens/join_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/start_screen.dart';
 
@@ -25,6 +27,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/start': (context) => const StartScreen(),
         '/login': (context) => const LoginScreen(),
+        '/join': (context) => const JoinScreen(),
+        '/find/password': (context) => const FindPasswordScreen(),
       },
     );
   }

@@ -30,7 +30,10 @@ class _StartScreenState extends State<StartScreen> {
             left: 40,
             child: SizedBox(
               width: MediaQuery.of(context).size.width - 80,
-              child: PrimaryButton(
+              child: Button(
+                style: const ButtonStyle.primary().withBackgroundColor(
+                  color: Colors.green,
+                ),
                 onPressed: () {
                   Navigator.of(context).pushNamed('/login');
                 },
