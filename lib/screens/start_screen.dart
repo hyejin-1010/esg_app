@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 class StartScreen extends StatefulWidget {
@@ -19,13 +19,27 @@ class _StartScreenState extends State<StartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
-      body: Column(
+      child: Stack(
         children: [
-          Container(
-            child: Image.asset(
-              'assets/images/splash.png',
-              fit: BoxFit.fitHeight,
+          Image.asset('assets/images/splash.png', fit: BoxFit.cover),
+          Positioned(
+            bottom: bottomPadding + 20,
+            left: 40,
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width - 80,
+              child: PrimaryButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/login');
+                },
+                child:
+                    const Text(
+                      '시작하기',
+                      style: TextStyle(decoration: TextDecoration.none),
+                    ).large.black,
+              ),
             ),
           ),
         ],
