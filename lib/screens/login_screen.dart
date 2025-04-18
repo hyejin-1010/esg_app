@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart' as material;
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:get/get.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
+
+import '../controllers/auth.dart';
+import '../utils/validators.dart';
+import '../widgets/custom_text_form_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,6 +17,20 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   String email = '';
   String password = '';
+  String? errorText;
+  bool isLoading = false;
+
+  final _formKey = material.GlobalKey<material.FormState>();
+
+  final getxController = Get.put(AuthController());
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 1), () {
+      FlutterNativeSplash.remove();
+    });
+  }
 
   void onChangedEmail(String text) {
     setState(() {
@@ -22,6 +42,30 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       password = text;
     });
+  }
+
+  void onSubmit() async {
+    if (isLoading) return;
+
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      if (_formKey.currentState!.validate()) {
+        // 회원가입
+        await getxController.authLogin(email: email, password: password);
+
+        // 회원가입 성공 후 홈 화면으로 이동
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
+    } catch (error) {
+      errorText = error.toString().replaceFirst('Exception: ', '');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -37,95 +81,72 @@ class _LoginScreenState extends State<LoginScreen> {
               SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      Gap(80),
-                      Image.asset('assets/images/green_earth.png', width: 180),
-                      Gap(80),
-                      material.TextField(
-                        decoration: material.InputDecoration(
-                          labelText: '이메일',
-                          labelStyle: TextStyle(color: Colors.black),
-                          focusedBorder: material.OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
-                            borderSide: BorderSide(
-                              width: 1,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          enabledBorder: material.OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
-                            borderSide: BorderSide(width: 0),
-                          ),
+                  child: material.Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Gap(80),
+                        Image.asset(
+                          'assets/images/green_earth.png',
+                          width: 180,
                         ),
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: onChangedEmail,
-                      ),
-                      Gap(20),
-                      material.TextField(
-                        decoration: material.InputDecoration(
-                          labelText: '비밀번호',
-                          labelStyle: TextStyle(color: Colors.black),
-                          focusedBorder: material.OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
-                            borderSide: BorderSide(
-                              width: 1,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          enabledBorder: material.OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
-                            borderSide: BorderSide(width: 0),
-                          ),
+                        Gap(80),
+                        CustomTextFormField(
+                          label: '이메일',
+                          keyboardType: TextInputType.emailAddress,
+                          validator: UtilValidators.email,
+                          onChanged: onChangedEmail,
+                          errorText: errorText,
                         ),
-                        keyboardType: TextInputType.text,
-                        obscureText: true,
-                        onChanged: onChangedPassword,
-                      ),
-                      Gap(40),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width - 40,
-                        height: 50,
-                        child: Button(
-                          style: const ButtonStyle.primary()
-                              .withBackgroundColor(
-                                color: Colors.green,
-                                disabledColor: Colors.green.withValues(
-                                  alpha: 0.5,
+                        Gap(20),
+                        CustomTextFormField(
+                          label: '비밀번호',
+                          keyboardType: TextInputType.text,
+                          validator: UtilValidators.password,
+                          onChanged: onChangedPassword,
+                          onFieldSubmitted: onSubmit,
+                          errorText: errorText,
+                          obscureText: true,
+                        ),
+                        Gap(40),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width - 40,
+                          height: 50,
+                          child: Button(
+                            style: const ButtonStyle.primary()
+                                .withBackgroundColor(
+                                  color: Colors.green,
+                                  disabledColor: Colors.green.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
-                              ),
-                          onPressed:
-                              email.isNotEmpty && password.isNotEmpty
-                                  ? () {}
-                                  : null,
+                            onPressed:
+                                email.isNotEmpty && password.isNotEmpty
+                                    ? onSubmit
+                                    : null,
+                            child:
+                                isLoading
+                                    ? CircularProgressIndicator(animated: true)
+                                    : const Text(
+                                      '로그인',
+                                      style: TextStyle(
+                                        decoration: TextDecoration.none,
+                                      ),
+                                    ).black,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pushNamed('/find/password');
+                          },
                           child:
-                              const Text(
-                                '로그인',
-                                style: TextStyle(
-                                  decoration: TextDecoration.none,
-                                ),
-                              ).black,
+                              Text(
+                                '비밀번호를 잊으셨나요?',
+                                style: TextStyle(color: Colors.green),
+                              ).xSmall.semiBold,
                         ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamed('/find/password');
-                        },
-                        child:
-                            Text(
-                              '비밀번호를 잊으셨나요?',
-                              style: TextStyle(color: Colors.green),
-                            ).xSmall.semiBold,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

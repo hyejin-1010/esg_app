@@ -1,11 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart' as material;
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 import '../controllers/auth.dart';
+import '../utils/validators.dart';
+import '../widgets/custom_text_form_field.dart';
 
 class JoinScreen extends StatefulWidget {
   const JoinScreen({super.key});
@@ -26,14 +27,6 @@ class _JoinScreenState extends State<JoinScreen> {
 
   final getxController = Get.put(AuthController());
 
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      FlutterNativeSplash.remove();
-    });
-  }
-
   void onChangedUserId(String? text) {
     setState(() {
       userId = text ?? '';
@@ -52,55 +45,10 @@ class _JoinScreenState extends State<JoinScreen> {
     });
   }
 
-  String? userIdValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return '아이디를 입력해 주세요.';
-    }
-    if (value.length < 4) {
-      return '아이디는 4자 이상 입력해 주세요.';
-    }
-    // if (isDuplicate) {
-    //   return '이미 사용중인 아이디입니다.';
-    // }
-    if (value.length > 20) {
-      return '아이디는 20자 이하로 입력해 주세요.';
-    }
-    if (RegExp(r'^[a-zA-Z0-9]+$').hasMatch(value)) {
-      return null;
-    } else {
-      return '아이디는 영문자와 숫자만 입력 가능합니다.';
-    }
-  }
-
-  String? passwordValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return '비밀번호를 입력해 주세요.';
-    }
-    if (value.length < 8) {
-      return '비밀번호는 8자 이상 입력해 주세요.';
-    }
-    if (value.length > 20) {
-      return '비밀번호는 20자 이하로 입력해 주세요.';
-    }
-    return null;
-  }
-
-  String? emailValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return '이메일을 입력해 주세요.';
-    }
-    if (!RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    ).hasMatch(value)) {
-      return '유효한 이메일 주소를 입력해 주세요.';
-    }
-    return null;
-  }
-
   // 실제 서버가 없으니 랜덤으로 중복 체크
   void checkDuplicateId() {
     int random = Random().nextInt(3);
-    String? errorText = userIdValidator(userId);
+    String? errorText = UtilValidators.userId(userId);
 
     if (random != 0 && errorText == null) {
       setState(() {
@@ -139,12 +87,14 @@ class _JoinScreenState extends State<JoinScreen> {
         );
 
         // 회원가입 성공 후 홈 화면으로 이동
-        Navigator.of(context).pushNamed('/home');
+        Navigator.of(context).pushReplacementNamed('/home');
       }
 
       setState(() {
         isLoading = false;
       });
+    } catch (error) {
+      userIdErrorText = error.toString().replaceFirst('Exception: ', '');
     } finally {
       setState(() {
         isLoading = false;
@@ -184,7 +134,7 @@ class _JoinScreenState extends State<JoinScreen> {
                                 icon: Icons.person,
                                 enabled: !isDuplicate,
                                 errorText: userIdErrorText,
-                                validator: userIdValidator,
+                                validator: UtilValidators.userId,
                                 onChanged: onChangedUserId,
                               ),
                             ),
@@ -216,7 +166,7 @@ class _JoinScreenState extends State<JoinScreen> {
                         CustomTextFormField(
                           label: '비밀번호',
                           icon: Icons.lock,
-                          validator: passwordValidator,
+                          validator: UtilValidators.password,
                           onChanged: onChangedPassword,
                           obscureText: true,
                         ),
@@ -225,7 +175,7 @@ class _JoinScreenState extends State<JoinScreen> {
                           label: '이메일',
                           icon: Icons.email,
                           keyboardType: TextInputType.emailAddress,
-                          validator: emailValidator,
+                          validator: UtilValidators.email,
                           onChanged: onChangedEmail,
                           onFieldSubmitted: onSubmit,
                         ),
@@ -260,83 +210,6 @@ class _JoinScreenState extends State<JoinScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomTextFormField extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final String? Function(String?)? validator;
-  final TextInputType keyboardType;
-  final TextInputAction? textInputAction;
-  final TextEditingController? controller;
-  final bool? enabled;
-  final bool obscureText;
-  final String? errorText;
-  final void Function(String)? onChanged;
-  final void Function()? onFieldSubmitted;
-
-  const CustomTextFormField({
-    super.key,
-    required this.label,
-    required this.icon,
-    this.validator,
-    this.keyboardType = TextInputType.text,
-    this.textInputAction,
-    this.controller,
-    this.enabled = true,
-    this.obscureText = false,
-    this.errorText,
-    this.onChanged,
-    this.onFieldSubmitted,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return material.TextFormField(
-      validator: validator,
-      controller: controller,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      enabled: enabled,
-      obscureText: obscureText,
-      onChanged: onChanged,
-      onFieldSubmitted: (_) {
-        if (onFieldSubmitted != null) {
-          onFieldSubmitted!();
-        }
-      },
-      autocorrect: false,
-      decoration: material.InputDecoration(
-        labelText: label,
-        errorText: errorText,
-        prefixIcon: Icon(icon, color: Colors.green),
-        labelStyle: const TextStyle(color: Colors.black),
-        focusedBorder: material.OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          borderSide: BorderSide(
-            width: 1,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        disabledBorder: material.OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          borderSide: BorderSide(width: 0, color: Colors.green),
-        ),
-        enabledBorder: const material.OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          borderSide: BorderSide(width: 0),
-        ),
-        errorBorder: const material.OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          borderSide: BorderSide(width: 0),
-        ),
-        focusedErrorBorder: const material.OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-          borderSide: BorderSide(width: 0, color: Colors.red),
         ),
       ),
     );
