@@ -1,10 +1,13 @@
 import 'package:esg_app/screens/home.dart';
 import 'package:esg_app/screens/login.dart';
 import 'package:flutter/material.dart' as material;
+import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const MyApp());
 }
 
