@@ -1,8 +1,10 @@
 // import 'package:flutter/material.dart' as material;
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:get/get.dart';
 
 import 'screens/find_password_screen.dart';
+import 'screens/home_screen.dart';
 import 'screens/join_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/start_screen.dart';
@@ -11,7 +13,7 @@ void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  runApp(const MyApp());
+  runApp(const GetMaterialApp(home: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -23,12 +25,13 @@ class MyApp extends StatelessWidget {
     return ShadcnApp(
       title: '가칭',
       theme: ThemeData(colorScheme: ColorSchemes.lightGreen(), radius: 0.5),
-      home: StartScreen(),
+      home: JoinScreen(),
       routes: {
         '/start': (context) => const StartScreen(),
         '/login': (context) => const LoginScreen(),
         '/join': (context) => const JoinScreen(),
         '/find/password': (context) => const FindPasswordScreen(),
+        '/home': (context) => const HomeScreen(),
       },
     );
   }
