@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/services.dart';
+import 'package:get/route_manager.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 import '../utils/validators.dart';
@@ -79,7 +80,7 @@ class _FindPasswordScreenState extends State<FindPasswordScreen> {
 
       if (_formKey.currentState!.validate()) {
         // 회원가입 성공 후 홈 화면으로 이동
-        Navigator.of(context).pushNamed('/find/new/password');
+        Get.toNamed('/find/new/password');
       }
 
       setState(() {

@@ -1,33 +1,31 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart' as material;
-import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 
+import '../controllers/auth.dart';
 import '../utils/validators.dart';
 import '../widgets/custom_text_form_field.dart';
 
-class FindNewPasswordScreen extends StatefulWidget {
-  const FindNewPasswordScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<FindNewPasswordScreen> createState() => _FindNewPasswordScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _FindNewPasswordScreenState extends State<FindNewPasswordScreen> {
+class _LoginScreenState extends State<LoginScreen> {
+  String email = '';
   String password = '';
-  String checkPassword = '';
   String? errorText;
   bool isLoading = false;
 
   final _formKey = material.GlobalKey<material.FormState>();
 
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      FlutterNativeSplash.remove();
+  final getxController = Get.put(AuthController());
+
+  void onChangedEmail(String text) {
+    setState(() {
+      email = text;
     });
   }
 
@@ -37,32 +35,21 @@ class _FindNewPasswordScreenState extends State<FindNewPasswordScreen> {
     });
   }
 
-  void onChangedCheckPassword(String text) {
-    setState(() {
-      checkPassword = text;
-    });
-  }
-
   void onSubmit() async {
     if (isLoading) return;
 
     try {
-      if (password != checkPassword) {
-        throw Exception('비밀번호가 일치하지 않습니다.');
-      }
-
       setState(() {
         isLoading = true;
       });
 
       if (_formKey.currentState!.validate()) {
-        // 회원가입 성공 후 홈 화면으로 이동
-        Navigator.of(context).pushNamed('/login');
-      }
+        // 회원가입
+        await getxController.authLogin(email: email, password: password);
 
-      setState(() {
-        isLoading = false;
-      });
+        // 회원가입 성공 후 홈 화면으로 이동
+        Get.toNamed('/home');
+      }
     } catch (error) {
       errorText = error.toString().replaceFirst('Exception: ', '');
     } finally {
@@ -96,25 +83,23 @@ class _FindNewPasswordScreenState extends State<FindNewPasswordScreen> {
                         ),
                         Gap(80),
                         CustomTextFormField(
-                          label: '새로운 비밀번호 입력',
+                          label: '이메일',
+                          keyboardType: TextInputType.emailAddress,
+                          validator: UtilValidators.email,
+                          onChanged: onChangedEmail,
+                          errorText: errorText,
+                        ),
+                        Gap(20),
+                        CustomTextFormField(
+                          label: '비밀번호',
                           keyboardType: TextInputType.text,
                           validator: UtilValidators.password,
                           onChanged: onChangedPassword,
-                          errorText: errorText,
-                          obscureText: true,
-                        ),
-                        Gap(8),
-                        Gap(20),
-                        CustomTextFormField(
-                          label: '새로운 비밀번호 재 입력',
-                          keyboardType: TextInputType.text,
-                          validator: UtilValidators.password,
-                          onChanged: onChangedCheckPassword,
                           onFieldSubmitted: onSubmit,
                           errorText: errorText,
                           obscureText: true,
                         ),
-                        Gap(20),
+                        Gap(40),
                         SizedBox(
                           width: MediaQuery.of(context).size.width - 40,
                           height: 50,
@@ -127,18 +112,56 @@ class _FindNewPasswordScreenState extends State<FindNewPasswordScreen> {
                                   ),
                                 ),
                             onPressed:
-                                password.isNotEmpty && checkPassword.isNotEmpty
+                                email.isNotEmpty && password.isNotEmpty
                                     ? onSubmit
                                     : null,
                             child:
                                 isLoading
                                     ? CircularProgressIndicator(animated: true)
                                     : const Text(
-                                      '완료',
+                                      '로그인',
                                       style: TextStyle(
                                         decoration: TextDecoration.none,
                                       ),
                                     ).black,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Get.toNamed('/find/password');
+                          },
+                          child:
+                              Text(
+                                '비밀번호를 잊으셨나요?',
+                                style: TextStyle(color: Colors.green),
+                              ).xSmall.semiBold,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                child: TextButton(
+                  onPressed: () {
+                    Get.toNamed('/join');
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '계정이 없으신가요? ',
+                          style: TextStyle(
+                            color: Colors.gray,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '회원가입',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -152,29 +175,4 @@ class _FindNewPasswordScreenState extends State<FindNewPasswordScreen> {
       ),
     );
   }
-}
-
-Widget buildToast(BuildContext context, ToastOverlay overlay) {
-  List<int> randomNumbers = [
-    Random().nextInt(9),
-    Random().nextInt(9),
-    Random().nextInt(9),
-    Random().nextInt(9),
-    Random().nextInt(9),
-    Random().nextInt(9),
-  ];
-  return SurfaceCard(
-    child: Basic(
-      title: Text(randomNumbers.join()),
-      trailing: PrimaryButton(
-        size: ButtonSize.small,
-        onPressed: () {
-          Clipboard.setData(ClipboardData(text: randomNumbers.join()));
-          overlay.close();
-        },
-        child: const Text('복사'),
-      ),
-      trailingAlignment: Alignment.center,
-    ),
-  );
 }

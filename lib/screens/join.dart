@@ -87,7 +87,7 @@ class _JoinScreenState extends State<JoinScreen> {
         );
 
         // 회원가입 성공 후 홈 화면으로 이동
-        Navigator.of(context).pushReplacementNamed('/home');
+        Get.toNamed('/home');
       }
 
       setState(() {

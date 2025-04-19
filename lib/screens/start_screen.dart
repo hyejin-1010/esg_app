@@ -1,3 +1,4 @@
+import 'package:get/route_manager.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
@@ -35,7 +36,7 @@ class _StartScreenState extends State<StartScreen> {
                   color: Colors.green,
                 ),
                 onPressed: () {
-                  Navigator.of(context).pushNamed('/login');
+                  Get.toNamed('/login');
                 },
                 child:
                     const Text(
