@@ -1,4 +1,5 @@
 // import 'package:flutter/material.dart' as material;
+import 'package:esg_app/screens/find_new_password_screen.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
@@ -25,12 +26,13 @@ class MyApp extends StatelessWidget {
     return ShadcnApp(
       title: '가칭',
       theme: ThemeData(colorScheme: ColorSchemes.lightGreen(), radius: 0.5),
-      home: LoginScreen(),
+      home: FindPasswordScreen(),
       routes: {
         '/start': (context) => const StartScreen(),
         '/login': (context) => const LoginScreen(),
         '/join': (context) => const JoinScreen(),
         '/find/password': (context) => const FindPasswordScreen(),
+        '/find/new/password': (context) => const FindNewPasswordScreen(),
         '/home': (context) => const HomeScreen(),
       },
     );

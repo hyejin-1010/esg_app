@@ -43,4 +43,17 @@ class UtilValidators {
       return '아이디는 영문자와 숫자만 입력 가능합니다.';
     }
   }
+
+  static String? authCode(String? value) {
+    if (value == null || value.isEmpty) {
+      return '인증코드를 입력해 주세요.';
+    }
+    if (value.length != 6) {
+      return '인증코드는 6자리 숫자입니다.';
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+      return '인증코드는 숫자만 입력 가능합니다.';
+    }
+    return null;
+  }
 }

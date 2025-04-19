@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' as material;
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 
@@ -23,14 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = material.GlobalKey<material.FormState>();
 
   final getxController = Get.put(AuthController());
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      FlutterNativeSplash.remove();
-    });
-  }
 
   void onChangedEmail(String text) {
     setState(() {
