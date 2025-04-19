@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/services.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import '../utils/validators.dart';
 import '../widgets/custom_text_form_field.dart';
@@ -23,14 +22,6 @@ class _FindPasswordScreenState extends State<FindPasswordScreen> {
   bool isSendAuthCode = false;
 
   final _formKey = material.GlobalKey<material.FormState>();
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      FlutterNativeSplash.remove();
-    });
-  }
 
   void onChangedEmail(String text) {
     setState(() {
@@ -53,8 +44,6 @@ class _FindPasswordScreenState extends State<FindPasswordScreen> {
       });
 
       String? newErrorText = UtilValidators.email(email);
-
-      print('hello $newErrorText');
 
       if (newErrorText == null) {
         // 인증코드 확인 후 비밀번호 변경 화면으로 이동

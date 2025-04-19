@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
     return ShadcnApp(
       title: '가칭',
       theme: ThemeData(colorScheme: ColorSchemes.lightGreen(), radius: 0.5),
-      home: FindPasswordScreen(),
+      home: StartScreen(),
       routes: {
         '/start': (context) => const StartScreen(),
         '/login': (context) => const LoginScreen(),
