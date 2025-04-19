@@ -1,14 +1,26 @@
-import 'package:esg_app/screens/home.dart';
-import 'package:esg_app/screens/login.dart';
-import 'package:flutter/material.dart' as material;
-import 'package:flutter/material.dart';
-import 'package:get/route_manager.dart';
+import 'package:esg_app/screens/find_new_password.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter/material.dart' as material;
+import 'package:get/get.dart';
+
+import 'screens/find_password.dart';
+import 'screens/home.dart';
+import 'screens/join.dart';
+import 'screens/login.dart';
+import 'screens/start_screen.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  runApp(const MyApp());
+  runApp(
+    ShadcnApp(
+      title: '가칭',
+      theme: ThemeData(colorScheme: ColorSchemes.lightGreen(), radius: 0.5),
+      home: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -18,13 +30,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Demo',
       theme: material.ThemeData(
-        colorScheme: material.ColorScheme.light(
-          primary: Color(0xFF34C759), // 메인 컬러 지정
-        ),
+        colorScheme: material.ColorScheme.light(primary: Color(0xFF34C759)),
       ),
-      routes: {'/': (context) => Home(), '/first': (context) => LoginScreen()},
+      initialRoute: '/start',
+      getPages: [
+        GetPage(name: '/start', page: () => const StartScreen()),
+        GetPage(name: '/login', page: () => const LoginScreen()),
+        GetPage(name: '/join', page: () => const JoinScreen()),
+        GetPage(name: '/find/password', page: () => const FindPasswordScreen()),
+        GetPage(
+          name: '/find/new/password',
+          page: () => const FindNewPasswordScreen(),
+        ),
+        GetPage(name: '/home', page: () => const HomeScreen()),
+      ],
     );
   }
 }
