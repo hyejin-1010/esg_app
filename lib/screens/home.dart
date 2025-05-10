@@ -5,14 +5,14 @@ import 'package:esg_app/screens/mission.dart';
 import 'package:esg_app/screens/mypage.dart';
 import 'package:flutter/material.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = <Widget>[
     FeedScreen(),
     MissionScreen(),
