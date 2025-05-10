@@ -1,5 +1,6 @@
 import 'package:esg_app/screens/home.dart';
 import 'package:esg_app/screens/login.dart';
+import 'package:esg_app/screens/register_mission.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
@@ -24,7 +25,11 @@ class MyApp extends StatelessWidget {
           primary: Color(0xFF34C759), // 메인 컬러 지정
         ),
       ),
-      routes: {'/': (context) => Home(), '/first': (context) => LoginScreen()},
+      routes: {
+        '/': (context) => Home(),
+        '/first': (context) => LoginScreen(),
+        '/register-mission': (context) => RegisterMissionScreen(),
+      },
     );
   }
 }

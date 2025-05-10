@@ -3,6 +3,7 @@ import 'package:esg_app/components/mission/search_box.dart';
 import 'package:esg_app/db/model_mission_dao.dart';
 import 'package:esg_app/models/mission_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class MissionScreen extends StatefulWidget {
   const MissionScreen({super.key});
@@ -62,7 +63,16 @@ class _MissionScreenState extends State<MissionScreen> {
                   child: ListView.builder(
                     itemCount: filteredMissions.length,
                     itemBuilder: (context, index) {
-                      return MissionItem(mission: filteredMissions[index]);
+                      return MissionItem(
+                        mission: filteredMissions[index],
+                        onClick: () {
+                          final id = filteredMissions[index].id;
+                          Get.toNamed(
+                            '/register-mission',
+                            arguments: {'id': id},
+                          );
+                        },
+                      );
                     },
                   ),
                 ),

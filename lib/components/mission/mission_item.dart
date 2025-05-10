@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 
 class MissionItem extends StatelessWidget {
   final Mission mission;
+  final VoidCallback onClick;
 
-  const MissionItem({super.key, required this.mission});
+  const MissionItem({super.key, required this.mission, required this.onClick});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +51,7 @@ class MissionItem extends StatelessWidget {
               ),
               shadowColor: Colors.transparent,
             ),
-            onPressed: () {},
+            onPressed: onClick,
             child: Text(
               '${mission.reward}P 받기',
               style: TextStyle(
