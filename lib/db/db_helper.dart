@@ -50,6 +50,13 @@ class DBHelper {
       },
     );
   }
+
+  // DB 초기화
+  static Future<void> clearAllData() async {
+    final db = await database;
+    await db.delete('Feed');
+    await db.delete('Mission');
+  }
 }
 
 // 초기 미션 데이터
