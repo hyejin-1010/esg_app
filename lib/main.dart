@@ -1,7 +1,10 @@
 import 'package:esg_app/screens/home.dart';
 import 'package:esg_app/screens/login.dart';
+import 'package:esg_app/screens/map.dart';
 import 'package:esg_app/screens/register_mission.dart';
 import 'package:flutter/material.dart' as material;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/route_manager.dart';
 import 'package:esg_app/constant/color.dart';
 import 'package:esg_app/screens/find_new_password.dart';
@@ -13,8 +16,28 @@ import 'screens/find_password.dart';
 import 'screens/join.dart';
 import 'screens/start_screen.dart';
 
-void main() {
+void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  // .env 파일 로드
+  await dotenv.load(fileName: ".env");
+
+  await FlutterNaverMap().init(
+    clientId: dotenv.get('NAVER_CLIENT_ID'),
+    onAuthFailed: (ex) {
+      switch (ex) {
+        case NQuotaExceededException(:final message):
+          print("사용량 초과 (message: $message)");
+          break;
+        case NUnauthorizedClientException() ||
+            NClientUnspecifiedException() ||
+            NAnotherAuthFailedException():
+          print("인증 실패: $ex");
+          break;
+      }
+    },
+  );
+
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   runApp(
@@ -70,7 +93,7 @@ class MyApp extends StatelessWidget {
           bodySmall: material.TextStyle(fontSize: 12.0),
         ),
       ),
-      initialRoute: '/start',
+      initialRoute: '/map',
       getPages: [
         GetPage(name: '/start', page: () => const StartScreen()),
         GetPage(name: '/login', page: () => const LoginScreen()),
@@ -81,6 +104,7 @@ class MyApp extends StatelessWidget {
           page: () => const FindNewPasswordScreen(),
         ),
         GetPage(name: '/home', page: () => const HomeScreen()),
+        GetPage(name: '/map', page: () => const MapScreen()),
         GetPage(
           name: '/register-mission',
           page: () => const RegisterMissionScreen(),

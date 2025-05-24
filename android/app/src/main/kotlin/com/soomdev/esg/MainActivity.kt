@@ -1,4 +1,4 @@
-package com.undercoverdeveloper.esg.esg_app
+package com.soongsil.esg
 
 import io.flutter.embedding.android.FlutterActivity
 
