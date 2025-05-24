@@ -44,6 +44,7 @@ class CustomTextFormField extends StatelessWidget {
           onFieldSubmitted!();
         }
       },
+      style: material.Theme.of(context).textTheme.bodyLarge,
       autocorrect: false,
       decoration: material.InputDecoration(
         labelText: label,
