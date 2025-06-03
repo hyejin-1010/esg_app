@@ -48,4 +48,7 @@ class AuthController extends GetxController {
   }
 
   get user => _user;
+
+  // TODO: 추후 DB 아이디로 변경 필요
+  get userId => 1;
 }

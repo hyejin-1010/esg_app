@@ -28,6 +28,13 @@ class DBHelper {
           )
         ''');
         await db.execute('''
+          CREATE TABLE IF NOT EXISTS Favorite (
+            user_id INTEGER,
+            feed_id INTEGER,
+            PRIMARY KEY (user_id, feed_id)
+          )
+        ''');
+        await db.execute('''
           CREATE TABLE IF NOT EXISTS Mission (
             id INTEGER PRIMARY KEY,
             title TEXT,

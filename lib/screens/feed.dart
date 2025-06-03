@@ -39,11 +39,20 @@ class _FeedScreenState extends State<FeedScreen> {
           fit: BoxFit.cover,
         ),
         leading: Container(),
+        leadingWidth: 0,
       ),
       body: ListView.builder(
         itemCount: feedController.items.length,
         itemBuilder: (context, index) {
-          return FeedItem(feed: feedController.items[index]);
+          return FeedItem(
+            feed: feedController.items[index],
+            onFavoriteTap: () async {
+              await feedController.toggleFavorite(
+                feedController.items[index].id!,
+              );
+              setState(() {});
+            },
+          );
         },
       ),
     );

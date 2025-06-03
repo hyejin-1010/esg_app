@@ -7,6 +7,8 @@ class Feed {
   final String updatedAt;
   final List<String> imagePathList; // 이미지 Path List
   final int missionId;
+  final bool isFavorite;
+  final int favoriteCount;
 
   Feed({
     this.id,
@@ -17,6 +19,8 @@ class Feed {
     String? updatedAt,
     List<String>? imagePathList,
     required this.missionId,
+    this.isFavorite = false,
+    this.favoriteCount = 0,
   }) : createdAt = createdAt ?? DateTime.now().toIso8601String(),
        updatedAt = updatedAt ?? DateTime.now().toIso8601String(),
        imagePathList = imagePathList ?? [];
@@ -33,6 +37,8 @@ class Feed {
           map['image_path_list']?.split(',') ??
           [], // Convert string back to list
       missionId: map['mission_id'],
+      isFavorite: map['is_favorite'] == 1 ? true : false,
+      favoriteCount: map['favorite_count'] ?? 0,
     );
   }
 

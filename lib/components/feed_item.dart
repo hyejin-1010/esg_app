@@ -4,9 +4,10 @@ import 'package:esg_app/models/feed_model.dart';
 import 'package:flutter/material.dart';
 
 class FeedItem extends StatefulWidget {
-  const FeedItem({super.key, required this.feed});
+  const FeedItem({super.key, required this.feed, required this.onFavoriteTap});
 
   final Feed feed;
+  final VoidCallback onFavoriteTap;
 
   @override
   State<FeedItem> createState() => _FeedItemState();
@@ -34,6 +35,7 @@ class _FeedItemState extends State<FeedItem> {
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Row(
             children: [
@@ -58,9 +60,10 @@ class _FeedItemState extends State<FeedItem> {
               const SizedBox(width: 4.0),
               Text(
                 _dateFormat(widget.feed.createdAt),
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: lightGray),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: lightGray,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -69,11 +72,35 @@ class _FeedItemState extends State<FeedItem> {
           _buildFeedImages(),
           const SizedBox(height: 4.0),
 
-          Text(
-            widget.feed.content,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
+          Row(
+            children: [
+              InkWell(
+                onTap: widget.onFavoriteTap,
+                child: Icon(
+                  widget.feed.isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                ),
+              ),
+              const SizedBox(width: 4.0),
+              Text(
+                '${widget.feed.favoriteCount}명이 좋아합니다.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+
+          Container(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              widget.feed.content,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:esg_app/constant/color.dart';
+import 'package:esg_app/controllers/auth.dart';
 import 'package:esg_app/controllers/feed_controller.dart';
 import 'package:esg_app/models/feed_model.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,8 @@ class RegisterMissionScreen extends StatefulWidget {
 }
 
 class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
-  FeedController feedController = Get.find();
+  FeedController feedController = Get.find<FeedController>();
+  AuthController authController = Get.find<AuthController>();
   final TextEditingController _contentController = TextEditingController();
 
   int missionId = -1; // 미션 ID
@@ -78,12 +80,11 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
       }
     }
 
-    final userId = 1; // TODO: 나의 ID 가져오기
-    final userName = 'test'; // TODO: 나의 이름 가져오기
+    final userName = '사용자'; // TODO: 나의 이름 가져오기
 
     final newFeed = Feed(
       content: _contentController.text,
-      userId: userId,
+      userId: authController.userId,
       userName: userName,
       missionId: missionId,
       imagePathList: paths,
