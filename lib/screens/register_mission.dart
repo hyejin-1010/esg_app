@@ -77,9 +77,9 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
       userId: userId,
       userName: userName,
       missionId: missionId,
+      imagePathList: paths,
     );
     try {
-      print('heidi test newFeed: ${newFeed.toMap().toString()}');
       await feedController.addItem(newFeed);
     } catch (error) {
       debugPrint('[EROR] heidi save mission - feed : $error');
