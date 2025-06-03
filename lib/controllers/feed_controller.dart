@@ -12,11 +12,11 @@ class FeedController extends GetxController {
     loadItems();
   }
 
-  void loadItems() async {
+  Future<void> loadItems() async {
     items.value = await _dao.getAllItems();
   }
 
-  void addItem(Feed item) async {
+  Future<void> addItem(Feed item) async {
     await _dao.insertItem(item);
     loadItems(); // 갱신
   }
