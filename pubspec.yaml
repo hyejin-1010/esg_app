@@ -45,6 +45,7 @@ dependencies:
   image_picker: ^1.1.2
   path_provider: ^2.1.5
   carousel_slider: ^5.0.0
+  supabase_flutter: ^2.9.0
 
 dev_dependencies:
   flutter_test:
@@ -92,3 +93,15 @@ flutter:
           weight: 500
         - asset: assets/fonts/Pretendard-Bold.otf
           weight: 700
+    - family: NanumSquareNeo
+      fonts:
+        - asset: assets/fonts/NanumSquareNeoOTF-Lt.otf
+          weight: 300
+        - asset: assets/fonts/NanumSquareNeoOTF-Rg.otf
+          weight: 400
+        - asset: assets/fonts/NanumSquareNeoOTF-Bd.otf
+          weight: 700
+        - asset: assets/fonts/NanumSquareNeoOTF-Eb.otf
+          weight: 800
+        - asset: assets/fonts/NanumSquareNeoOTF-Hv.otf
+          weight: 900

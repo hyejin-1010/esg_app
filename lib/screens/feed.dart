@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:esg_app/constant/color.dart';
 import 'package:esg_app/controllers/feed_controller.dart';
+import 'package:esg_app/models/feed_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -47,6 +46,15 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: false,
+        title: Image.asset(
+          'assets/images/green_earth.png',
+          width: 150,
+          fit: BoxFit.cover,
+        ),
+        leading: Container(),
+      ),
       body: ListView.builder(
         itemCount: feedController.items.length,
         itemBuilder: (context, index) {
@@ -71,26 +79,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   ],
                 ),
 
-                feedController.items[index].imagePathList.isNotEmpty &&
-                        feedController.items[index].imagePathList[0].isNotEmpty
-                    ? CarouselSlider(
-                      items:
-                          feedController.items[index].imagePathList
-                              .map(
-                                (item) => Image.file(
-                                  File(item),
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                              .toList(),
-                      options: CarouselOptions(
-                        viewportFraction: 1.0,
-                        enableInfiniteScroll: false,
-                      ),
-                    )
-                    : Container(),
-
+                _buildFeedImages(feedController.items[index]),
                 const SizedBox(height: 4.0),
 
                 Text(
@@ -103,5 +92,26 @@ class _FeedScreenState extends State<FeedScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildFeedImages(Feed feed) {
+    return feed.imagePathList.isNotEmpty && feed.imagePathList[0].isNotEmpty
+        ? CarouselSlider(
+          items:
+              feed.imagePathList
+                  .map(
+                    (item) => Image.network(
+                      item,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                  .toList(),
+          options: CarouselOptions(
+            viewportFraction: 1.0,
+            enableInfiniteScroll: false,
+          ),
+        )
+        : Container();
   }
 }

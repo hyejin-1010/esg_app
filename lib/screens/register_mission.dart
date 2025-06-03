@@ -6,8 +6,8 @@ import 'package:esg_app/models/feed_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:esg_app/components/add_image_box.dart';
@@ -36,22 +36,31 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
   }
 
   // 이미지 저장
-  Future<String> _saveImageToLocal(File imageFile) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final uuid = const Uuid().v4(); // 고유한 파일명 생성
-    final extension = path.extension(imageFile.path); // 원본 파일의 확장자 유지
-    final fileName = '$uuid$extension';
-    final savedPath = path.join(directory.path, 'mission_images', fileName);
+  Future<String?> _saveImageToSupabase(File imageFile) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final uuid = const Uuid().v4(); // 고유한 파일명 생성
+      final extension = path.extension(imageFile.path); // 원본 파일의 확장자 유지
+      final fileName = '$uuid$extension';
+      final fileBytes = await imageFile.readAsBytes();
 
-    // 디렉토리가 없으면 생성
-    final imageDir = Directory(path.dirname(savedPath));
-    if (!await imageDir.exists()) {
-      await imageDir.create(recursive: true);
+      await supabase.storage.from('esg').uploadBinary(fileName, fileBytes);
+
+      // Get public URL
+      final publicUrl = supabase.storage.from('esg').getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      debugPrint('[ERROR] save image to supabase: $error');
+      // Show error to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('이미지 업로드에 실패했습니다. 다시 시도해주세요.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return null;
     }
-
-    // 이미지 파일 복사
-    await imageFile.copy(savedPath);
-    return savedPath;
   }
 
   // 미션 저장 시 호출될 메서드
@@ -62,8 +71,8 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
     final paths = <String>[];
     for (var image in _images) {
       try {
-        final savedPath = await _saveImageToLocal(image);
-        paths.add(savedPath);
+        final savedPath = await _saveImageToSupabase(image);
+        if (savedPath != null) paths.add(savedPath);
       } catch (error) {
         debugPrint('[EROR] save image - local : $error');
       }
