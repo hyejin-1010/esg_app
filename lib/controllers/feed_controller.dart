@@ -16,7 +16,7 @@ class FeedController extends GetxController {
     items.value = await _dao.getAllItems();
   }
 
-  void addItem(Feed item) async {
+  Future<void> addItem(Feed item) async {
     await _dao.insertItem(item);
     loadItems(); // 갱신
   }

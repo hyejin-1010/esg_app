@@ -17,15 +17,14 @@ class DBHelper {
       onOpen: (Database db) async {
         await db.execute('''
           CREATE TABLE IF NOT EXISTS Feed (
-            id INTEGER PRIMARY KEY,
-            conten TEXT,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content TEXT,
             user_id INTEGER,
             user_name TEXT,
             created_at TEXT,
             updated_at TEXT,
             image_path_list TEXT,
-            mission_id INTEGER,
-            mission_name TEXT
+            mission_id INTEGER
           )
         ''');
         await db.execute('''
@@ -53,9 +52,7 @@ class DBHelper {
 
   // DB 초기화
   static Future<void> clearAllData() async {
-    final db = await database;
-    await db.delete('Feed');
-    await db.delete('Mission');
+    await deleteDatabase('assets/esg_app.db');
   }
 }
 

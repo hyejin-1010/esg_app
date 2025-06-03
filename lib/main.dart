@@ -8,6 +8,7 @@ import 'package:esg_app/screens/find_new_password.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
+import 'package:esg_app/controllers/feed_controller.dart';
 
 import 'screens/find_password.dart';
 import 'screens/join.dart';
@@ -16,6 +17,8 @@ import 'screens/start_screen.dart';
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  Get.put(FeedController());
 
   runApp(
     ShadcnApp(

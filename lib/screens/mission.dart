@@ -36,6 +36,7 @@ class _MissionScreenState extends State<MissionScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: Container(),
         title: const Text(
           '그린미션',
           style: TextStyle(fontWeight: FontWeight.bold),
