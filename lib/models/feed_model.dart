@@ -1,7 +1,7 @@
 class Feed {
   final int? id;
   final String content;
-  final int userId;
+  int userId;
   final String userName;
   final String createdAt;
   final String updatedAt;

@@ -1,8 +1,8 @@
+import 'package:esg_app/controllers/mission_controller.dart';
 import 'package:esg_app/screens/home.dart';
 import 'package:esg_app/screens/login.dart';
 import 'package:esg_app/screens/register_mission.dart';
 import 'package:flutter/material.dart' as material;
-import 'package:get/route_manager.dart';
 import 'package:esg_app/constant/color.dart';
 import 'package:esg_app/screens/find_new_password.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
@@ -20,6 +20,7 @@ void main() async {
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   Get.put(FeedController());
+  Get.put(MissionController());
 
   try {
     await Supabase.initialize(

@@ -1,6 +1,6 @@
 import 'package:esg_app/components/mission/mission_item.dart';
 import 'package:esg_app/components/mission/search_box.dart';
-import 'package:esg_app/db/model_mission_dao.dart';
+import 'package:esg_app/controllers/mission_controller.dart';
 import 'package:esg_app/models/mission_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,7 +15,7 @@ class MissionScreen extends StatefulWidget {
 class _MissionScreenState extends State<MissionScreen> {
   List<Mission> missions = [];
   List<Mission> filteredMissions = [];
-  final MissionDao _missionDao = MissionDao();
+  final MissionController _missionController = Get.find<MissionController>();
 
   @override
   void initState() {
@@ -24,10 +24,10 @@ class _MissionScreenState extends State<MissionScreen> {
   }
 
   void _loadMissions() async {
-    final loadedMissions = await _missionDao.getAllItems();
+    await _missionController.loadItems();
     setState(() {
-      missions = loadedMissions;
-      filteredMissions = [...missions];
+      missions = [..._missionController.items];
+      filteredMissions = [..._missionController.items];
     });
   }
 
@@ -66,12 +66,13 @@ class _MissionScreenState extends State<MissionScreen> {
                     itemBuilder: (context, index) {
                       return MissionItem(
                         mission: filteredMissions[index],
-                        onClick: () {
+                        onClick: () async {
                           final id = filteredMissions[index].id;
-                          Get.toNamed(
+                          await Get.toNamed(
                             '/register-mission',
                             arguments: {'id': id},
                           );
+                          _loadMissions();
                         },
                       );
                     },

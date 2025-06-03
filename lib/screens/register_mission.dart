@@ -108,6 +108,7 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
           '그린미션 등록',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        centerTitle: false,
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
       ),
@@ -127,12 +128,12 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
                       '사진 등록',
                       style: TextStyle(
                         fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                     const SizedBox(width: 4.0),
-                    Text('최대 2개 까지만 등록 가능', style: TextStyle(fontSize: 13.0)),
+                    Text('(최대 2개 까지만 등록 가능)', style: TextStyle(fontSize: 12.0)),
                   ],
                 ),
                 const SizedBox(height: 8.0),
@@ -165,7 +166,7 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
                       TextSpan(text: '탄소중립 실천을 위해 업로드한 이미지를 '),
                       TextSpan(
                         text: '3개월 후에 자동 삭제',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontWeight: FontWeight.w900),
                       ),
                       TextSpan(text: '합니다.'),
                     ],
@@ -202,10 +203,17 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('일상 속 작은 실천을 기록하고 인증하며', style: TextStyle(fontSize: 18.0)),
+        Text(
+          '일상 속 작은 실천을 기록하고 인증하며',
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
         Text(
           '함께 건강한 지구 만들어요!',
-          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900),
         ),
       ],
     );

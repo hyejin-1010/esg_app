@@ -17,6 +17,8 @@ class FeedController extends GetxController {
   }
 
   Future<void> addItem(Feed item) async {
+    // TODO: 현재 로그인 되어있는 유저 ID 가져와야 함
+    item.userId = 1;
     await _dao.insertItem(item);
     loadItems(); // 갱신
   }
