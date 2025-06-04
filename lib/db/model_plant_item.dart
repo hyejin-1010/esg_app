@@ -13,7 +13,6 @@ class PlantItem {
     required this.price,
   });
 
-  // DB에서 읽어올 때 사용
   factory PlantItem.fromMap(Map<String, dynamic> map) {
     return PlantItem(
       id: map['id'] as int,
@@ -24,7 +23,6 @@ class PlantItem {
     );
   }
 
-  // DB에 저장할 때 사용
   Map<String, dynamic> toMap() {
     return {
       'id': id,

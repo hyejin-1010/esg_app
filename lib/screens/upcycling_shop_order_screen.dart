@@ -64,9 +64,6 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
     final history = PurchaseHistory(
       id: 0, // DB에서 자동 생성
       plantItemId: widget.plantItemId,
-      // plantName과 plantImage는 PurchaseHistory 모델에 포함되지 않으므로 제거합니다.
-      // plantName: widget.selectedPlantName,
-      // plantImage: widget.imageAsset,
       price: widget.price,
       purchaseDate: formattedDate,
       postCode: postCode!,
@@ -76,6 +73,41 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
     );
 
     await dao.insert(history);
+
+    // 구매 완료 팝업 표시 (AlertDialog 스타일)
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // 이미지와 유사한 둥근 모서리
+          title: const Center(
+            child: Text(
+              '구매 완료', // 팝업 제목
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20), // 제목 스타일
+            ),
+          ),
+          content: const Text(
+            '식물 구매가 완료되었습니다.\n제작 기간을 포함하여 15일 이내에 배송될 예정입니다.', // 구매 완료 관련 메시지
+            textAlign: TextAlign.center, // 내용 중앙 정렬
+            style: TextStyle(fontSize: 16), // 내용 스타일
+          ),
+          actions: <Widget>[
+            Center( // 버튼 중앙 정렬
+              child: TextButton(
+                onPressed: () {
+                  // 먼저 팝업을 닫고
+                  Navigator.of(context).pop();
+                  // 그 후에 홈 화면으로 이동
+                  Get.offAllNamed('/home');
+                },
+                child: const Text('확인', style: TextStyle(fontSize: 18, color: Colors.blue)), // 버튼 텍스트 및 스타일
+              ),
+            ),
+          ],
+          actionsAlignment: MainAxisAlignment.center, // actions 위젯들을 중앙으로 정렬
+        );
+      },
+    );
   }
 
   @override
@@ -252,6 +284,9 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
                   ),
                   contentPadding: EdgeInsets.all(16),
                 ),
+                onChanged: (text) {
+                  setState(() {});
+                },
               ),
             ],
           ),
@@ -272,7 +307,6 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
             onPressed: (postCode != null && _detailAddressController.text.isNotEmpty && selectedIcon != null)
                 ? () async {
                     await _savePurchaseHistory();
-                    _showPurchaseCompleteDialog(context);
                   }
                 : null,
             child: Text(
@@ -330,40 +364,6 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
             child: Image.asset(asset, height: 40),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showPurchaseCompleteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Center(
-          child: Text(
-            '구매완료',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-          ),
-        ),
-        content: Text(
-          '제작 기간을 포함해 15일 이내에\n배송됩니다.',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 18),
-        ),
-        actions: [
-          Center(
-            child: TextButton(
-              onPressed: () {
-                // 다이얼로그 닫기
-                Navigator.pop(context);
-                // 모든 화면을 닫고 HomeScreen의 기본 탭으로 이동
-                Get.offAllNamed('/home');
-              },
-              child: Text('OK', style: TextStyle(fontSize: 20, color: Colors.blue)),
-            ),
-          ),
-        ],
-        actionsAlignment: MainAxisAlignment.center,
       ),
     );
   }

@@ -8,7 +8,7 @@ class PurchaseHistory {
   final String postCode; // 우편번호
   final String address; // 주소
   final String detailAddress; // 상세 주소
-  final String iconDescription; // 추가: 아이콘 설명
+  final String iconDescription; // 아이콘 설명
 
   PurchaseHistory({
     required this.id,
@@ -18,7 +18,7 @@ class PurchaseHistory {
     required this.postCode,
     required this.address,
     required this.detailAddress,
-    required this.iconDescription, // 추가
+    required this.iconDescription, 
   });
 
   // DB에서 읽어올 때 사용
@@ -31,7 +31,7 @@ class PurchaseHistory {
       postCode: map['postCode'] as String,
       address: map['address'] as String,
       detailAddress: map['detailAddress'] as String,
-      iconDescription: map['iconDescription'] as String, // 추가
+      iconDescription: map['iconDescription'] as String,
     );
   }
 
@@ -44,7 +44,7 @@ class PurchaseHistory {
       'postCode': postCode,
       'address': address,
       'detailAddress': detailAddress,
-      'iconDescription': iconDescription, // 추가
+      'iconDescription': iconDescription, 
     };
   }
 }
@@ -55,17 +55,29 @@ class PurchaseHistoryDao {
 
   PurchaseHistoryDao(this.db);
 
-  Future<List<PurchaseHistory>> getAll() async {
-    final List<Map<String, dynamic>> maps = await db.query(tableName);
-    return maps.map((map) => PurchaseHistory.fromMap(map)).toList();
+  Future<List<Map<String, dynamic>>> getAllWithPlantName() async {
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT
+        ph.id,
+        ph.plantItemId,
+        pi.name AS plantName,
+        pi.imageAsset AS plantImage,
+        ph.price,
+        ph.purchaseDate,
+        ph.postCode,
+        ph.address,
+        ph.detailAddress,
+        ph.iconDescription
+      FROM purchase_history ph
+      INNER JOIN plant_items pi ON ph.plantItemId = pi.id
+      ORDER BY ph.purchaseDate DESC -- 최신 구매 내역부터 표시
+    ''');
+    return maps;
   }
 
   Future<int> insert(PurchaseHistory history) async {
-    // id는 DB에서 자동 생성되도록 제거
     final map = history.toMap();
-    map.remove('id');
+    map.remove('id'); 
     return await db.insert(tableName, map);
   }
-
-
 } 

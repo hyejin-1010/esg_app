@@ -7,6 +7,9 @@ import 'package:esg_app/db/db_helper.dart';
 import 'package:esg_app/db/model_purchase_history.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/number_symbols_data.dart';
+import 'package:esg_app/controllers/feed_controller.dart';
+import 'package:esg_app/components/feed_item.dart';
+import 'package:get/get.dart';
 
 class MyPageScreen extends StatefulWidget {
   final int initialTab;
@@ -21,7 +24,8 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
   late TabController _tabController;
   String _nickname = '닉네임을 변경하세요!';
   File? _profileImage;
-  List<PurchaseHistory> _purchaseHistory = [];
+  List<Map<String, dynamic>> _purchaseHistory = [];
+  final FeedController _feedController = Get.find<FeedController>();
 
   @override
   void initState() {
@@ -32,12 +36,17 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
       initialIndex: widget.initialTab,
     );
     _loadPurchaseHistory();
+    _loadUserPosts();
+  }
+
+  Future<void> _loadUserPosts() async {
+    await _feedController.loadUserItems();
   }
 
   Future<void> _loadPurchaseHistory() async {
     final db = await DBHelper.database;
     final dao = PurchaseHistoryDao(db);
-    final history = await dao.getAll();
+    final history = await dao.getAllWithPlantName();
     setState(() {
       _purchaseHistory = history;
     });
@@ -111,22 +120,22 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                           Text(
-                             'heejin@example.com',
-                             style: TextStyle(
-                               color: Colors.grey[600],
-                               fontSize: 16,
-                             ),
-                           ),
-                           GestureDetector(
-                             onTap: () {
-                               // TODO: 로그아웃 기능 구현
-                             },
-                             child: Text(
-                               '로그아웃',
-                               style: TextStyle(fontSize: 16, color: Colors.black),
-                             ),
-                           ),
+                          Text(
+                            'heejin@example.com',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              // TODO: 로그아웃 기능 구현
+                            },
+                            child: Text(
+                              '로그아웃',
+                              style: TextStyle(fontSize: 16, color: Colors.black),
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -166,26 +175,62 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
             child: TabBarView(
               controller: _tabController,
               children: [
-                // 참여 탭
-                SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '참여한 캠페인',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        // TODO: 참여한 캠페인 목록 표시
-                      ],
+                // 게시물 탭
+                Obx(() {
+                  if (_feedController.userItems.isEmpty) {
+                    return const Center(
+                      child: Text('작성한 게시물이 없습니다.'),
+                    );
+                  }
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(4.0),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 4.0,
+                      mainAxisSpacing: 4.0,
+                      childAspectRatio: 1.0,
                     ),
-                  ),
-                ),
+                    itemCount: _feedController.userItems.length,
+                    itemBuilder: (context, index) {
+                      final feed = _feedController.userItems[index];
+                      if (feed.imagePathList.isEmpty || feed.imagePathList[0].isEmpty) {
+                        return Container();
+                      }
+                      final imageUrl = feed.imagePathList[0];
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PostDetailScreen(
+                                imageUrls: feed.imagePathList,
+                                nickname: feed.userName,
+                                date: feed.createdAt,
+                                content: feed.content,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                        ),
+                      );
+                    },
+                  );
+                }),
                 // 구매 내역 탭
                 PurchaseHistoryTab(),
               ],
@@ -297,7 +342,18 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
     return ListView.builder(
       itemCount: _purchaseHistory.length,
       itemBuilder: (context, index) {
-        final history = _purchaseHistory[index];
+        final historyMap = _purchaseHistory[index];
+
+        final int id = historyMap['id'] as int;
+        final String plantName = historyMap['plantName'] as String;
+        final String iconDescription = historyMap['iconDescription'] as String;
+        final int price = historyMap['price'] as int;
+        final String purchaseDateString = historyMap['purchaseDate'] as String;
+        final String address = historyMap['address'] as String;
+        final String detailAddress = historyMap['detailAddress'] as String;
+
+        final DateTime purchaseDate = DateTime.parse(purchaseDateString);
+
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Padding(
@@ -305,39 +361,30 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '주문번호: ${history.id}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      DateFormat('yyyy.MM.dd').format(DateTime.parse(history.purchaseDate)),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
                 Text(
-                  '아이콘: ${history.iconDescription}',
+                  DateFormat('yyyy.MM.dd HH:mm').format(purchaseDate),
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text('주소: ${history.address} ${history.detailAddress}'),
-                const SizedBox(height: 8),
-                Text(
-                  '${NumberFormat('#,###').format(history.price)}원',
-                  style: const TextStyle(
+                const Text(
+                  '구매완료',
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
+                    color: Colors.green,
                     fontSize: 16,
                   ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${plantName} | ${iconDescription} | ${NumberFormat('#,###').format(price)}P',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
