@@ -9,6 +9,7 @@ import 'screens/home.dart';
 import 'screens/join.dart';
 import 'screens/login.dart';
 import 'screens/start_screen.dart';
+import 'screens/mypage.dart';
 
 void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +45,10 @@ class MyApp extends StatelessWidget {
           page: () => const FindNewPasswordScreen(),
         ),
         GetPage(name: '/home', page: () => const HomeScreen()),
+        GetPage(
+          name: '/mypage',
+          page: () => MyPageScreen(initialTab: 0),
+        ),
       ],
     );
   }
