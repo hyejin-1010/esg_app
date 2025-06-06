@@ -126,6 +126,7 @@ class _FeedItemState extends State<FeedItem> {
               options: CarouselOptions(
                 viewportFraction: 1.0,
                 enableInfiniteScroll: false,
+                height: 350,
                 onPageChanged: (index, _) {
                   _currentIndex = index;
                   setState(() {});
