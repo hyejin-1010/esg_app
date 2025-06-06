@@ -27,4 +27,10 @@ class MissionDao {
     final db = await DBHelper.database;
     return await db.insert('Mission', item.toMap());
   }
+
+  Future<Mission?> getMission(int id) async {
+    final db = await DBHelper.database;
+    final res = await db.query('Mission', where: 'id = ?', whereArgs: [id]);
+    return res.isNotEmpty ? Mission.fromMap(res.first) : null;
+  }
 }

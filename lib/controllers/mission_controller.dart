@@ -17,4 +17,8 @@ class MissionController extends GetxController {
     final authController = Get.find<AuthController>();
     items.value = await _dao.getAvailableMissions(authController.userId);
   }
+
+  Future<Mission?> getMission(int id) async {
+    return await _dao.getMission(id);
+  }
 }

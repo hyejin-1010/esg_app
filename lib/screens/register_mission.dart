@@ -1,9 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:esg_app/constant/color.dart';
 import 'package:esg_app/controllers/auth.dart';
 import 'package:esg_app/controllers/feed_controller.dart';
+import 'package:esg_app/controllers/mission_controller.dart';
 import 'package:esg_app/models/feed_model.dart';
+import 'package:esg_app/models/mission_model.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,6 +30,7 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
   final TextEditingController _contentController = TextEditingController();
 
   int missionId = -1; // 미션 ID
+  Mission? mission;
   final List<File> _images = []; // 이미지 리스트
 
   @override
@@ -34,7 +39,12 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
     final args = Get.arguments;
     if (args != null && args['id'] != null) {
       missionId = int.parse(args['id'].toString());
+      _loadMission();
     }
+  }
+
+  void _loadMission() async {
+    mission = await Get.find<MissionController>().getMission(missionId);
   }
 
   // 이미지 저장
@@ -95,7 +105,31 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
       debugPrint('[EROR] heidi save mission - feed : $error');
     }
 
-    Get.back();
+    showCupertinoDialog(
+      context: context,
+      builder:
+          (context) => CupertinoAlertDialog(
+            title: Text('등록 완료'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'CO₂ 절감량 : ${mission?.co2.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}g',
+                ),
+                Text('포인트 : ${mission?.reward}P'),
+              ],
+            ),
+            actions: [
+              CupertinoDialogAction(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  Get.back();
+                },
+              ),
+            ],
+          ),
+    );
   }
 
   @override

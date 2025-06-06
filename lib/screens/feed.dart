@@ -40,6 +40,7 @@ class _FeedScreenState extends State<FeedScreen> {
         ),
         leading: Container(),
         leadingWidth: 0,
+        surfaceTintColor: Colors.white,
       ),
       body: ListView.builder(
         itemCount: feedController.items.length,
