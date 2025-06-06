@@ -1,3 +1,4 @@
+import 'package:esg_app/controllers/find_controller.dart';
 import 'package:esg_app/controllers/mission_controller.dart';
 import 'package:esg_app/screens/home.dart';
 import 'package:esg_app/screens/login.dart';
@@ -21,6 +22,7 @@ void main() async {
 
   Get.put(FeedController());
   Get.put(MissionController());
+  Get.put(FindController());
 
   try {
     await Supabase.initialize(

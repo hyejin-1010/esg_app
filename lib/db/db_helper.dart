@@ -1,5 +1,6 @@
 import 'package:esg_app/models/feed_model.dart';
 import 'package:esg_app/models/mission_model.dart';
+import 'package:esg_app/models/store_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBHelper {
@@ -45,6 +46,18 @@ class DBHelper {
             co2 INTEGER
           )
         ''');
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS Store (
+            id INTEGER PRIMARY KEY,
+            name_en TEXT,
+            name_ko TEXT,
+            description TEXT,
+            tag TEXT,
+            thumbnail TEXT,
+            image_list TEXT,
+            link TEXT
+          )
+        ''');
 
         // 초기 미션 데이터 삽입
         final missionCount = Sqflite.firstIntValue(
@@ -63,6 +76,16 @@ class DBHelper {
         if (feedCount == 0) {
           for (var feed in mockupFeedData) {
             await db.insert('Feed', feed.toMap());
+          }
+        }
+
+        // 초기 스토어 데이터 삽입
+        final storeCount = Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM Store'),
+        );
+        if (storeCount == 0) {
+          for (var store in mockupStoreData) {
+            await db.insert('Store', store.toMap());
           }
         }
       },
@@ -316,5 +339,79 @@ List<Feed> mockupFeedData = [
       'https://dzmhxwhowtjnioxjzzlb.supabase.co/storage/v1/object/public/esg/sample/feed_8_3.png',
     ],
     missionId: 15,
+  ),
+];
+
+// 초기 스토어 데이터
+List<Store> mockupStoreData = [
+  Store(
+    id: 1,
+    nameEn: 'Earth Us',
+    nameKo: '얼스어스',
+    description:
+        '제로웨이스트를 실천하는 친환경 연남동 카페\n\n'
+        '🌐 주소 : 서울 마포구 성미산로 150\n'
+        '🕤 영업시간 : 수~월 12:00-21:00(매주 화요일 휴무)\n'
+        '☎️ 전화번호 : 0507.1341.9413\n',
+    tag: '제로웨이스트·일회용품 없는 카페',
+    thumbnail: 'find1.png',
+    imageList: ['find1_1.png', 'find1_2.png', 'find1_3.png', 'find1_4.png'],
+    link: 'https://naver.me/FN7Zth9W',
+  ),
+  Store(
+    id: 2,
+    nameEn: 'URBAN LAUNDERETTE THE TERRACE',
+    nameKo: '어반런드렛 더 테라스',
+    description:
+        '친환경 세탁소와 건강한 음료, 디저트를 제공하는 이색 카페\n\n'
+        '🌐 주소 : 경기 용인시 기흥구 용구대로2469번길 47 1층\n'
+        '🕤 영업시간 : 매일 09:00 ~ 01:00\n'
+        '☎️ 전화번호 : 031-261-8725\n',
+    tag: '친환경·웻클리닝',
+    thumbnail: 'find2.png',
+    imageList: ['find2_1.png', 'find2_2.png', 'find2_3.png', 'find2_4.png'],
+    link: 'https://naver.me/GubHKOU8',
+  ),
+  Store(
+    id: 3,
+    nameEn: 'Bottle Lounge',
+    nameKo: '보틀라운지 연희점',
+    description:
+        '연희동 제로웨이스트&비건 카페\n\n'
+        '🌐 주소 : 서울 서대문구 홍연길 26\n'
+        '🕤 영업시간 : 매일 11:30-21:00\n'
+        '☎️ 전화번호 : 02-3144-0703\n',
+    tag: '제로웨이스트·비건',
+    thumbnail: 'find3.png',
+    imageList: ['find3_1.png', 'find3_2.png', 'find3_3.png', 'find3_4.png'],
+    link: 'https://naver.me/xVBziEgu',
+  ),
+  Store(
+    id: 4,
+    nameEn: 'ZERO WASTE SHOP',
+    nameKo: '지구인상점',
+    description:
+        '남양주 친환경 생활용품점\n\n'
+        '🌐 주소 : 경기 남양주시 다산중앙로123번길 29 단지내 상가 106호\n'
+        '🕤 영업시간 : 화~토 12:00-20:00 (매주 월, 일 휴무)\n'
+        '☎️ 전화번호 : 0507-1335-0554\n',
+    tag: '제로웨이스트·친환경생활용품점·자원순환',
+    thumbnail: 'find4.png',
+    imageList: ['find4_1.png', 'find4_2.png', 'find4_3.png', 'find4_4.png'],
+    link: 'https://naver.me/xk184z2A',
+  ),
+  Store(
+    id: 5,
+    nameEn: 'VEGAN VEGANING',
+    nameKo: '비건비거닝',
+    description:
+        '강남 선릉역에 위치한 비건빵, 비건요거트 맛집\n\n'
+        '🌐 주소 : 서울 강남구 선릉로85길 6 호텔뉴브 1층\n'
+        '🕤 영업시간 : 월~토 08:00-19:00 (매주 일요일 휴무)\n'
+        '☎️ 전화번호 : 0507-2085-1426\n',
+    tag: '채식 음식점',
+    thumbnail: 'find5.png',
+    imageList: ['find5_1.png', 'find5_2.png', 'find5_3.png', 'find5_4.png'],
+    link: 'https://naver.me/xdp3ZEGT',
   ),
 ];

@@ -47,6 +47,7 @@ dependencies:
   carousel_slider: ^5.0.0
   supabase_flutter: ^2.9.0
   flutter_launcher_icons: ^0.14.3
+  share_plus: ^11.0.0
 
 dev_dependencies:
   flutter_test:
@@ -75,6 +76,7 @@ flutter:
     - assets/images/find/
     - assets/esg_app.db
     - assets/mission/
+    - assets/icon/footer/
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

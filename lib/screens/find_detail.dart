@@ -1,57 +1,81 @@
+import 'package:esg_app/controllers/find_controller.dart';
+import 'package:esg_app/models/store_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
-class FindDetailPopup extends StatelessWidget {
-  final String id;
-  final String nameEn;
-  final String nameKo;
-  final String description;
+class FindDetailPopup extends StatefulWidget {
+  final int id;
+  const FindDetailPopup({super.key, required this.id});
+  @override
+  State<FindDetailPopup> createState() => _FindDetailPopupState();
+}
 
-  const FindDetailPopup({
-    super.key,
-    required this.id,
-    required this.nameEn,
-    required this.nameKo,
-    required this.description,
-  });
+class _FindDetailPopupState extends State<FindDetailPopup> {
+  FindController findController = Get.find<FindController>();
+  Store? store;
+
+  @override
+  void initState() {
+    super.initState();
+    _getData();
+  }
+
+  void _getData() async {
+    final store = await findController.getStore(widget.id);
+    setState(() {
+      this.store = store;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    // 이미지 배열
-    final List<String> imagePaths = [
-      'assets/images/find/find'+id+'_1.png',
-      'assets/images/find/find'+id+'_2.png',
-      'assets/images/find/find'+id+'_3.png',
-      'assets/images/find/find'+id+'_4.png',
-    ];
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             // 상단 이미지와 뒤로가기 버튼
-            SliverToBoxAdapter(
-              child: Stack(
-                children: [
-                  Image.asset(
-                    'assets/images/find/find$id.png',
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: 300,
+            store == null
+                ? const SliverToBoxAdapter()
+                : SliverToBoxAdapter(
+                  child: Stack(
+                    children: [
+                      Image.asset(
+                        'assets/images/find/${store?.thumbnail}',
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 300,
+                      ),
+                      Positioned(
+                        top: 16,
+                        left: 16,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+                      Positioned(
+                        top: 16,
+                        right: 16,
+                        child: IconButton(
+                          onPressed: () {
+                            SharePlus.instance.share(
+                              ShareParams(
+                                uri: Uri.parse('https://naver.me/FN7Zth9W'),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.share, color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
-                  Positioned(
-                    top: 16,
-                    left: 16,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  )
-                ],
-              ),
-            ),
+                ),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
@@ -59,12 +83,12 @@ class FindDetailPopup extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      nameEn,
+                      store?.nameEn ?? '',
                       style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      nameKo,
+                      store?.nameKo ?? '',
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -73,7 +97,7 @@ class FindDetailPopup extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      description,
+                      store?.description ?? '',
                       style: const TextStyle(
                         fontSize: 13,
                         height: 1.6,
@@ -100,12 +124,12 @@ class FindDetailPopup extends StatelessWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childCount: imagePaths.length,
+                childCount: store?.imageList.length ?? 0,
                 itemBuilder: (context, index) {
                   return ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.asset(
-                      imagePaths[index],
+                      'assets/images/find/${store?.imageList[index]}',
                       fit: BoxFit.cover,
                     ),
                   );
