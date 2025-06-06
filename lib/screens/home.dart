@@ -47,18 +47,57 @@ class _HomeScreenState extends State<HomeScreen> {
       // bottom navigation 선언
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '미션'),
-          BottomNavigationBarItem(icon: Icon(Icons.location_city), label: '맵'),
-          BottomNavigationBarItem(icon: Icon(Icons.info_outline), label: '발견'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: '마이페이지'),
+        selectedLabelStyle: TextStyle(fontSize: 12.0),
+        unselectedLabelStyle: TextStyle(fontSize: 12.0, color: Colors.black),
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/icon/footer/ic_home.png', width: 20.0),
+            activeIcon: Image.asset(
+              'assets/icon/footer/ic_home_active.png',
+              width: 20.0,
+            ),
+            label: '홈',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/icon/footer/ic_mission.png', width: 20.0),
+            activeIcon: Image.asset(
+              'assets/icon/footer/ic_mission_active.png',
+              width: 20.0,
+            ),
+            label: '미션',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/icon/footer/ic_map.png', width: 20.0),
+            activeIcon: Image.asset(
+              'assets/icon/footer/ic_map_active.png',
+              width: 20.0,
+            ),
+            label: '맵',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset(
+              'assets/icon/footer/ic_discovery.png',
+              width: 20.0,
+            ),
+            activeIcon: Image.asset(
+              'assets/icon/footer/ic_discovery_active.png',
+              width: 20.0,
+            ),
+            label: '발견',
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset('assets/icon/footer/ic_my.png', width: 20.0),
+            activeIcon: Image.asset(
+              'assets/icon/footer/ic_my.png',
+              width: 20.0,
+            ),
+            label: '마이페이지',
+          ),
         ],
         showUnselectedLabels: true,
         currentIndex: _selectedIndex, // 지정 인덱스로 이동
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Colors.black,
-        unselectedLabelStyle: TextStyle(color: Colors.black),
         onTap: _onItemTapped, // 선언했던 onItemTapped
       ),
 
