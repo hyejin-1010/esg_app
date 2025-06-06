@@ -21,6 +21,23 @@ class FeedDao {
     return res.map((e) => Feed.fromMap(e)).toList();
   }
 
+  Future<List<Feed>> getUserItems(int userId) async {
+    final db = await DBHelper.database;
+    final res = await db.rawQuery(
+      '''
+      SELECT f.*, 
+        CASE WHEN fav.user_id IS NOT NULL THEN 1 ELSE 0 END as is_favorite,
+        (SELECT COUNT(*) FROM Favorite WHERE feed_id = f.id) as favorite_count
+      FROM Feed f
+      LEFT JOIN Favorite fav ON f.id = fav.feed_id AND fav.user_id = ?
+      WHERE f.user_id = ?
+      ORDER BY f.created_at DESC
+    ''',
+      [userId, userId],
+    );
+    return res.map((e) => Feed.fromMap(e)).toList();
+  }
+
   Future<int> insertItem(Feed item) async {
     final db = await DBHelper.database;
     return await db.insert('Feed', item.toMap());

@@ -15,6 +15,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/find_password.dart';
 import 'screens/join.dart';
 import 'screens/start_screen.dart';
+import 'screens/mypage.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -103,6 +104,10 @@ class MyApp extends StatelessWidget {
         GetPage(
           name: '/register-mission',
           page: () => const RegisterMissionScreen(),
+        ),
+        GetPage(
+          name: '/mypage',
+          page: () => MyPageScreen(initialTab: 0),
         ),
       ],
     );

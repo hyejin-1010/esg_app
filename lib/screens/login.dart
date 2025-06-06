@@ -145,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 bottom: 0,
                 child: TextButton(
                   onPressed: () {
-                    Get.toNamed('/join');
+                    Get.toNamed('/home');
                   },
                   child: RichText(
                     text: TextSpan(
