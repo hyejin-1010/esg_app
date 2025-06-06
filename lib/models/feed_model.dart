@@ -1,51 +1,58 @@
 class Feed {
-  final int id;
-  final String conten;
-  final int userId;
+  final int? id;
+  final String content;
+  int userId;
   final String userName;
   final String createdAt;
   final String updatedAt;
-  final List<String> imagePathList;
+  final List<String> imagePathList; // 이미지 Path List
   final int missionId;
-  final String missionName;
+  final bool isFavorite;
+  final int favoriteCount;
 
   Feed({
-    required this.id,
-    required this.conten,
+    this.id,
+    required this.content,
     required this.userId,
     required this.userName,
-    required this.createdAt,
-    required this.updatedAt,
-    this.imagePathList = const [],
+    String? createdAt,
+    String? updatedAt,
+    List<String>? imagePathList,
     required this.missionId,
-    required this.missionName,
-  });
+    this.isFavorite = false,
+    this.favoriteCount = 0,
+  }) : createdAt = createdAt ?? DateTime.now().toIso8601String(),
+       updatedAt = updatedAt ?? DateTime.now().toIso8601String(),
+       imagePathList = imagePathList ?? [];
 
   factory Feed.fromMap(Map<String, dynamic> map) {
     return Feed(
       id: map['id'],
-      conten: map['conten'],
+      content: map['content'],
       userId: map['user_id'],
       userName: map['user_name'],
       createdAt: map['created_at'],
       updatedAt: map['updated_at'],
-      imagePathList: map['image_path_list'],
+      imagePathList:
+          map['image_path_list']?.split(',') ??
+          [], // Convert string back to list
       missionId: map['mission_id'],
-      missionName: map['mission_name'],
+      isFavorite: map['is_favorite'] == 1 ? true : false,
+      favoriteCount: map['favorite_count'] ?? 0,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'conten': conten,
+      'content': content,
       'user_id': userId,
       'user_name': userName,
       'created_at': createdAt,
       'updated_at': updatedAt,
-      'image_path_list': imagePathList,
+      'image_path_list': imagePathList.join(
+        ',',
+      ), // Convert list to comma-separated string
       'mission_id': missionId,
-      'mission_name': missionName,
     };
   }
 }

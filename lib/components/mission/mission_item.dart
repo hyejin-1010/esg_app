@@ -37,7 +37,7 @@ class MissionItem extends StatelessWidget {
             children: [
               Text(
                 mission.title,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
               ),
               Text(mission.description, style: TextStyle(fontSize: 12)),
             ],
@@ -56,8 +56,8 @@ class MissionItem extends StatelessWidget {
               '${mission.reward}P 받기',
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
                 color: Colors.white,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),

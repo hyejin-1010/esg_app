@@ -33,15 +33,25 @@ dependencies:
   flutter_staggered_grid_view: ^0.7.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^1.0.2
   shadcn_flutter: ^0.0.30
-  sqflite: ^2.4.2
+  sqflite: ^2.3.0
   url_launcher: ^6.2.5
+  http: ^1.2.0
+  kpostal: ^1.0.0
+  path: ^1.8.3
+  intl: ^0.19.0
 
   flutter_native_splash: ^2.4.6
   flutter_secure_storage: ^9.2.4
   uuid: ^4.5.1
   get: ^4.7.2
+  image_picker: ^1.1.2
+  path_provider: ^2.1.5
+  carousel_slider: ^5.0.0
+  supabase_flutter: ^2.9.0
+  flutter_launcher_icons: ^0.14.3
+  share_plus: ^11.0.0
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +80,8 @@ flutter:
     - assets/images/find/
     - assets/esg_app.db
     - assets/mission/
+    - assets/images/mypage/
+    - assets/icon/footer/
 
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
@@ -89,3 +101,15 @@ flutter:
           weight: 500
         - asset: assets/fonts/Pretendard-Bold.otf
           weight: 700
+    - family: NanumSquareNeo
+      fonts:
+        - asset: assets/fonts/NanumSquareNeoOTF-Lt.otf
+          weight: 300
+        - asset: assets/fonts/NanumSquareNeoOTF-Rg.otf
+          weight: 400
+        - asset: assets/fonts/NanumSquareNeoOTF-Bd.otf
+          weight: 700
+        - asset: assets/fonts/NanumSquareNeoOTF-Eb.otf
+          weight: 800
+        - asset: assets/fonts/NanumSquareNeoOTF-Hv.otf
+          weight: 900
