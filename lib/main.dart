@@ -4,6 +4,9 @@ import 'package:esg_app/screens/home.dart';
 import 'package:esg_app/screens/login.dart';
 import 'package:esg_app/screens/map.dart';
 import 'package:esg_app/screens/register_mission.dart';
+import 'package:esg_app/screens/upcycling_shop_detail_screen.dart';
+import 'package:esg_app/screens/upcycling_shop_order_screen.dart';
+import 'package:esg_app/screens/upcycling_shop_screen.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -19,7 +22,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'screens/find_password.dart';
 import 'screens/join.dart';
 import 'screens/start_screen.dart';
-import 'screens/mypage.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -131,7 +133,15 @@ class MyApp extends StatelessWidget {
           name: '/register-mission',
           page: () => const RegisterMissionScreen(),
         ),
-        GetPage(name: '/mypage', page: () => MyPageScreen(initialTab: 0)),
+        GetPage(name: '/upcyclingShop', page: () => UpcyclingShopScreen()),
+        GetPage(
+          name: '/upcyclingShopDetail',
+          page: () => UpcyclingShopDetailScreen(),
+        ),
+        GetPage(
+          name: '/upcyclingShopOrder',
+          page: () => UpcyclingShopOrderScreen(),
+        ),
       ],
     );
   }

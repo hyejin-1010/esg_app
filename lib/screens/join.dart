@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart' as material;
 import 'package:get/get.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
@@ -16,20 +14,20 @@ class JoinScreen extends StatefulWidget {
 }
 
 class _JoinScreenState extends State<JoinScreen> {
-  String userId = '';
+  String nickname = '';
   String email = '';
   String password = '';
-  String? userIdErrorText;
-  bool isDuplicate = false;
+  String? nicknameErrorText;
+  bool isNotDuplicate = false;
   bool isLoading = false;
 
   final _formKey = material.GlobalKey<material.FormState>();
 
   final getxController = Get.put(AuthController());
 
-  void onChangedUserId(String? text) {
+  void onChangedNickname(String? text) {
     setState(() {
-      userId = text ?? '';
+      nickname = text ?? '';
     });
   }
 
@@ -46,26 +44,29 @@ class _JoinScreenState extends State<JoinScreen> {
   }
 
   // 실제 서버가 없으니 랜덤으로 중복 체크
-  void checkDuplicateId() {
-    int random = Random().nextInt(3);
-    String? errorText = UtilValidators.userId(userId);
+  Future<void> checkDuplicateNickname() async {
+    String? errorText = UtilValidators.nickname(nickname);
 
-    if (random != 0 && errorText == null) {
+    final isDuplicateNickname = await getxController.authCheckDuplicateNickname(
+      nickname: nickname,
+    );
+
+    if (isDuplicateNickname && errorText == null) {
       setState(() {
-        userIdErrorText = '이미 사용중인 아이디입니다.';
-        isDuplicate = false;
+        nicknameErrorText = '이미 사용중인 아이디입니다.';
+        isNotDuplicate = false;
       });
-    } else if (random == 0 && errorText == null) {
+    } else if (errorText == null) {
       // 성공
       setState(() {
-        userIdErrorText = errorText;
-        isDuplicate = true;
+        nicknameErrorText = errorText;
+        isNotDuplicate = true;
       });
     } else {
       // 실패
       setState(() {
-        userIdErrorText = errorText;
-        isDuplicate = false;
+        nicknameErrorText = errorText;
+        isNotDuplicate = false;
       });
     }
   }
@@ -81,7 +82,7 @@ class _JoinScreenState extends State<JoinScreen> {
       if (_formKey.currentState!.validate()) {
         // 회원가입
         await getxController.authJoin(
-          userId: userId,
+          nickname: nickname,
           email: email,
           password: password,
         );
@@ -94,7 +95,7 @@ class _JoinScreenState extends State<JoinScreen> {
         isLoading = false;
       });
     } catch (error) {
-      userIdErrorText = error.toString().replaceFirst('Exception: ', '');
+      nicknameErrorText = error.toString().replaceFirst('Exception: ', '');
     } finally {
       setState(() {
         isLoading = false;
@@ -132,10 +133,10 @@ class _JoinScreenState extends State<JoinScreen> {
                               child: CustomTextFormField(
                                 label: '아이디',
                                 icon: Icons.person,
-                                enabled: !isDuplicate,
-                                errorText: userIdErrorText,
-                                validator: UtilValidators.userId,
-                                onChanged: onChangedUserId,
+                                enabled: !isNotDuplicate,
+                                errorText: nicknameErrorText,
+                                validator: UtilValidators.nickname,
+                                onChanged: onChangedNickname,
                               ),
                             ),
                             Gap(8),
@@ -150,7 +151,9 @@ class _JoinScreenState extends State<JoinScreen> {
                                       ),
                                     ),
                                 onPressed:
-                                    !isDuplicate ? checkDuplicateId : null,
+                                    !isNotDuplicate
+                                        ? checkDuplicateNickname
+                                        : null,
                                 child:
                                     const Text(
                                       '중복체크',

@@ -1,23 +1,54 @@
 import 'dart:convert';
 
+class AuthUser {
+  final String nickname;
+  final String email;
+  final String password;
+
+  AuthUser({
+    required this.nickname,
+    required this.email,
+    required this.password,
+  });
+
+  factory AuthUser.fromJson(Map<String, dynamic> json) {
+    return AuthUser(
+      nickname: json['nickname'],
+      email: json['email'],
+      password: json['password'],
+    );
+  }
+
+  static Map<String, dynamic> toMap(AuthUser model) => <String, dynamic>{
+    'nickname': model.nickname,
+    'email': model.email,
+    'password': model.password,
+  };
+
+  static String serialize(AuthUser model) => json.encode(AuthUser.toMap(model));
+
+  static AuthUser deserialize(String json) =>
+      AuthUser.fromJson(jsonDecode(json));
+}
+
 class User {
-  final String accessToken;
-  final String userId;
+  final int userId;
+  final String nickname;
   final String email;
 
-  User({required this.accessToken, required this.userId, required this.email});
+  User({required this.userId, required this.nickname, required this.email});
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      accessToken: json['accessToken'],
       userId: json['userId'],
+      nickname: json['nickname'],
       email: json['email'],
     );
   }
 
   static Map<String, dynamic> toMap(User model) => <String, dynamic>{
-    'accessToken': model.accessToken,
     'userId': model.userId,
+    'nickname': model.nickname,
     'email': model.email,
   };
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'upcycling_shop_detail_screen.dart';
+import 'package:get/get.dart';
 
 class UpcyclingShopScreen extends StatelessWidget {
   const UpcyclingShopScreen({Key? key}) : super(key: key);
@@ -33,12 +33,7 @@ class UpcyclingShopScreen extends StatelessWidget {
         height: bottomBarHeight,
         child: GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const UpcyclingShopDetailScreen(),
-              ),
-            );
+            Get.toNamed('/upcyclingShopDetail');
           },
           child: Image.asset(
             'assets/images/mypage/btn_shop.png',
@@ -50,4 +45,4 @@ class UpcyclingShopScreen extends StatelessWidget {
       ),
     );
   }
-} 
+}

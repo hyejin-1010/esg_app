@@ -6,28 +6,35 @@ import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 
 class UpcyclingShopOrderScreen extends StatefulWidget {
-  final String selectedPlantName;
-  final int price;
-  final int plantItemId;
-  final String imageAsset;
-
-  const UpcyclingShopOrderScreen({
-    Key? key,
-    required this.selectedPlantName,
-    required this.price,
-    required this.plantItemId,
-    required this.imageAsset,
-  }) : super(key: key);
+  const UpcyclingShopOrderScreen({Key? key}) : super(key: key);
 
   @override
-  State<UpcyclingShopOrderScreen> createState() => _UpcyclingShopOrderScreenState();
+  State<UpcyclingShopOrderScreen> createState() =>
+      _UpcyclingShopOrderScreenState();
 }
 
 class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
   String? postCode;
   String? address;
-  final TextEditingController _detailAddressController = TextEditingController();
+  final TextEditingController _detailAddressController =
+      TextEditingController();
   String? selectedIcon; // 선택된 아이콘을 저장할 변수 (asset path)
+
+  String? selectedPlantName;
+  int? price;
+  int? plantItemId;
+  String? imageAsset;
+
+  @override
+  void initState() {
+    super.initState();
+    final arguments = Get.arguments;
+    selectedIcon = arguments['imageAsset'];
+    selectedPlantName = arguments['selectedPlantName'];
+    price = arguments['price'];
+    plantItemId = arguments['plantItemId'];
+    imageAsset = arguments['imageAsset'];
+  }
 
   // 아이콘 파일 경로를 설명 문자열로 매핑하는 함수
   String _mapIconPathToDescription(String iconPath) {
@@ -47,14 +54,17 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
 
   Future<void> _savePurchaseHistory() async {
     // 주소, 상세주소, 아이콘이 모두 입력되어야 저장
-    if (postCode == null || address == null || _detailAddressController.text.isEmpty || selectedIcon == null) {
+    if (postCode == null ||
+        address == null ||
+        _detailAddressController.text.isEmpty ||
+        selectedIcon == null) {
       // TODO: 사용자에게 입력 누락 알림
       return;
     }
 
     final db = await DBHelper.database;
     final dao = PurchaseHistoryDao(db);
-    
+
     final now = DateTime.now();
     final formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
 
@@ -63,8 +73,8 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
 
     final history = PurchaseHistory(
       id: 0, // DB에서 자동 생성
-      plantItemId: widget.plantItemId,
-      price: widget.price,
+      plantItemId: plantItemId!,
+      price: price!,
       purchaseDate: formattedDate,
       postCode: postCode!,
       address: address!,
@@ -79,11 +89,16 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // 이미지와 유사한 둥근 모서리
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ), // 이미지와 유사한 둥근 모서리
           title: const Center(
             child: Text(
               '구매 완료', // 팝업 제목
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20), // 제목 스타일
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ), // 제목 스타일
             ),
           ),
           content: const Text(
@@ -92,15 +107,19 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
             style: TextStyle(fontSize: 16), // 내용 스타일
           ),
           actions: <Widget>[
-            Center( // 버튼 중앙 정렬
+            Center(
+              // 버튼 중앙 정렬
               child: TextButton(
                 onPressed: () {
                   // 먼저 팝업을 닫고
                   Navigator.of(context).pop();
-                  // 그 후에 홈 화면으로 이동
-                  Get.offAllNamed('/home');
+                  // 홈 화면이 나올 때까지 뒤로가기
+                  Get.until((route) => route.isFirst);
                 },
-                child: const Text('확인', style: TextStyle(fontSize: 18, color: Colors.blue)), // 버튼 텍스트 및 스타일
+                child: const Text(
+                  '확인',
+                  style: TextStyle(fontSize: 18, color: Colors.blue),
+                ), // 버튼 텍스트 및 스타일
               ),
             ),
           ],
@@ -171,7 +190,7 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
               // 식물 이미지
               Center(
                 child: Image.asset(
-                  widget.imageAsset,
+                  imageAsset!,
                   height: 180,
                   fit: BoxFit.contain,
                 ),
@@ -195,14 +214,24 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
                           children: [
                             _iconBox(
                               'assets/images/mypage/ic_beer.png',
-                              isSelected: selectedIcon == 'assets/images/mypage/ic_beer.png',
-                              onTap: () => _selectIcon('assets/images/mypage/ic_beer.png'),
+                              isSelected:
+                                  selectedIcon ==
+                                  'assets/images/mypage/ic_beer.png',
+                              onTap:
+                                  () => _selectIcon(
+                                    'assets/images/mypage/ic_beer.png',
+                                  ),
                             ),
                             SizedBox(width: 12),
                             _iconBox(
                               'assets/images/mypage/ic_cup.png',
-                              isSelected: selectedIcon == 'assets/images/mypage/ic_cup.png',
-                              onTap: () => _selectIcon('assets/images/mypage/ic_cup.png'),
+                              isSelected:
+                                  selectedIcon ==
+                                  'assets/images/mypage/ic_cup.png',
+                              onTap:
+                                  () => _selectIcon(
+                                    'assets/images/mypage/ic_cup.png',
+                                  ),
                             ),
                           ],
                         ),
@@ -211,14 +240,24 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
                           children: [
                             _iconBox(
                               'assets/images/mypage/ic_denim.png',
-                              isSelected: selectedIcon == 'assets/images/mypage/ic_denim.png',
-                              onTap: () => _selectIcon('assets/images/mypage/ic_denim.png'),
+                              isSelected:
+                                  selectedIcon ==
+                                  'assets/images/mypage/ic_denim.png',
+                              onTap:
+                                  () => _selectIcon(
+                                    'assets/images/mypage/ic_denim.png',
+                                  ),
                             ),
                             SizedBox(width: 12),
                             _iconBox(
                               'assets/images/mypage/ic_shopbag.png',
-                              isSelected: selectedIcon == 'assets/images/mypage/ic_shopbag.png',
-                              onTap: () => _selectIcon('assets/images/mypage/ic_shopbag.png'),
+                              isSelected:
+                                  selectedIcon ==
+                                  'assets/images/mypage/ic_shopbag.png',
+                              onTap:
+                                  () => _selectIcon(
+                                    'assets/images/mypage/ic_shopbag.png',
+                                  ),
                             ),
                           ],
                         ),
@@ -238,13 +277,10 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
               // 배송지 입력
               Text(
                 '배송지 입력',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 16),
-              
+
               // 우편번호 입력
               GestureDetector(
                 onTap: () => _showAddressSearch(),
@@ -260,7 +296,8 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
                         child: Text(
                           postCode != null ? '($postCode) $address' : '우편번호 찾기',
                           style: TextStyle(
-                            color: postCode != null ? Colors.black : Colors.grey,
+                            color:
+                                postCode != null ? Colors.black : Colors.grey,
                           ),
                         ),
                       ),
@@ -270,7 +307,7 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
                 ),
               ),
               SizedBox(height: 16),
-              
+
               // 상세주소 입력
               TextField(
                 controller: _detailAddressController,
@@ -304,13 +341,16 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
                 borderRadius: BorderRadius.circular(28),
               ),
             ),
-            onPressed: (postCode != null && _detailAddressController.text.isNotEmpty && selectedIcon != null)
-                ? () async {
-                    await _savePurchaseHistory();
-                  }
-                : null,
+            onPressed:
+                (postCode != null &&
+                        _detailAddressController.text.isNotEmpty &&
+                        selectedIcon != null)
+                    ? () async {
+                      await _savePurchaseHistory();
+                    }
+                    : null,
             child: Text(
-              '${widget.price}P로 구매하기',
+              '${price}P로 구매하기',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -327,18 +367,19 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => KpostalView(
-          useLocalServer: true,
-          localPort: 8080,
-          callback: (Kpostal result) {
-            if (mounted) {
-              setState(() {
-                postCode = result.postCode;
-                address = result.address;
-              });
-            }
-          },
-        ),
+        builder:
+            (_) => KpostalView(
+              useLocalServer: true,
+              localPort: 8080,
+              callback: (Kpostal result) {
+                if (mounted) {
+                  setState(() {
+                    postCode = result.postCode;
+                    address = result.address;
+                  });
+                }
+              },
+            ),
       ),
     );
   }
@@ -349,7 +390,11 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
     });
   }
 
-  Widget _iconBox(String asset, {bool isSelected = false, VoidCallback? onTap}) {
+  Widget _iconBox(
+    String asset, {
+    bool isSelected = false,
+    VoidCallback? onTap,
+  }) {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -358,13 +403,14 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
           decoration: BoxDecoration(
             color: isSelected ? Color(0xFFE6F7EC) : Color(0xFFF6F6F6),
             borderRadius: BorderRadius.circular(18),
-            border: isSelected ? Border.all(color: Color(0xFF22C55E), width: 2) : null,
+            border:
+                isSelected
+                    ? Border.all(color: Color(0xFF22C55E), width: 2)
+                    : null,
           ),
-          child: Center(
-            child: Image.asset(asset, height: 40),
-          ),
+          child: Center(child: Image.asset(asset, height: 40)),
         ),
       ),
     );
   }
-} 
+}
