@@ -44,6 +44,7 @@ void main() async {
   );
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  FlutterNativeSplash.remove();
 
   Get.put(FeedController());
   Get.put(MissionController());
@@ -114,7 +115,7 @@ class MyApp extends StatelessWidget {
           bodySmall: material.TextStyle(fontSize: 12.0),
         ),
       ),
-      initialRoute: '/map',
+      initialRoute: '/start',
       getPages: [
         GetPage(name: '/start', page: () => const StartScreen()),
         GetPage(name: '/login', page: () => const LoginScreen()),
