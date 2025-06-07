@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../db/model_plant_item.dart';
 import '../db/model_plant_item_dao.dart';
 import '../db/db_helper.dart';
@@ -8,7 +9,8 @@ class UpcyclingShopDetailScreen extends StatefulWidget {
   const UpcyclingShopDetailScreen({Key? key}) : super(key: key);
 
   @override
-  State<UpcyclingShopDetailScreen> createState() => _UpcyclingShopDetailScreenState();
+  State<UpcyclingShopDetailScreen> createState() =>
+      _UpcyclingShopDetailScreenState();
 }
 
 class _UpcyclingShopDetailScreenState extends State<UpcyclingShopDetailScreen> {
@@ -41,17 +43,15 @@ class _UpcyclingShopDetailScreenState extends State<UpcyclingShopDetailScreen> {
       print('설명: ${selectedPlant.description}');
       print('가격: ${selectedPlant.price}P');
       print('이미지 경로: ${selectedPlant.imageAsset}');
-      
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => UpcyclingShopOrderScreen(
-            selectedPlantName: selectedPlant.name,
-            price: selectedPlant.price,
-            plantItemId: selectedPlant.id,
-            imageAsset: selectedPlant.imageAsset,
-          ),
-        ),
+
+      Get.toNamed(
+        '/upcyclingShopOrder',
+        arguments: {
+          'selectedPlantName': selectedPlant.name,
+          'price': selectedPlant.price,
+          'plantItemId': selectedPlant.id,
+          'imageAsset': selectedPlant.imageAsset,
+        },
       );
     }
   }
@@ -69,46 +69,60 @@ class _UpcyclingShopDetailScreenState extends State<UpcyclingShopDetailScreen> {
         ),
       ),
       body: SafeArea(
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
-                          children: [
-                            TextSpan(text: '당신의 일상에 '),
-                            TextSpan(text: '초록', style: TextStyle(color: Color(0xFF1DB954))),
-                            TextSpan(text: '을 더해줄\n'),
-                            TextSpan(text: '식물', style: TextStyle(color: Color(0xFF1DB954))),
-                            TextSpan(text: '을 선택해보세요.'),
-                          ],
+        child:
+            _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 8,
+                        ),
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            children: [
+                              TextSpan(text: '당신의 일상에 '),
+                              TextSpan(
+                                text: '초록',
+                                style: TextStyle(color: Color(0xFF1DB954)),
+                              ),
+                              TextSpan(text: '을 더해줄\n'),
+                              TextSpan(
+                                text: '식물',
+                                style: TextStyle(color: Color(0xFF1DB954)),
+                              ),
+                              TextSpan(text: '을 선택해보세요.'),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    ...List.generate(_plants.length, (index) {
-                      final plant = _plants[index];
-                      return _buildPlantOption(
-                        plant.name,
-                        plant.description,
-                        selected: _selectedIndex == index,
-                        onTap: () {
-                          setState(() {
-                            _selectedIndex = index;
-                          });
-                        },
-                      );
-                    }),
-                    SizedBox(height: 32),
-                  ],
+                      const SizedBox(height: 16),
+                      ...List.generate(_plants.length, (index) {
+                        final plant = _plants[index];
+                        return _buildPlantOption(
+                          plant.name,
+                          plant.description,
+                          selected: _selectedIndex == index,
+                          onTap: () {
+                            setState(() {
+                              _selectedIndex = index;
+                            });
+                          },
+                        );
+                      }),
+                      SizedBox(height: 32),
+                    ],
+                  ),
                 ),
-              ),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(bottom: 32.0, left: 24, right: 24),
@@ -125,7 +139,11 @@ class _UpcyclingShopDetailScreenState extends State<UpcyclingShopDetailScreen> {
             onPressed: _onNextPressed,
             child: Text(
               '다음',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
@@ -133,7 +151,12 @@ class _UpcyclingShopDetailScreenState extends State<UpcyclingShopDetailScreen> {
     );
   }
 
-  Widget _buildPlantOption(String title, String subtitle, {bool selected = false, VoidCallback? onTap}) {
+  Widget _buildPlantOption(
+    String title,
+    String subtitle, {
+    bool selected = false,
+    VoidCallback? onTap,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: GestureDetector(
@@ -143,7 +166,10 @@ class _UpcyclingShopDetailScreenState extends State<UpcyclingShopDetailScreen> {
           decoration: BoxDecoration(
             color: selected ? Color(0xFFE6F7EC) : Color(0xFFF6F6F6),
             borderRadius: BorderRadius.circular(18),
-            border: selected ? Border.all(color: Color(0xFF22C55E), width: 3) : null,
+            border:
+                selected
+                    ? Border.all(color: Color(0xFF22C55E), width: 3)
+                    : null,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
@@ -175,4 +201,4 @@ class _UpcyclingShopDetailScreenState extends State<UpcyclingShopDetailScreen> {
       ),
     );
   }
-} 
+}
