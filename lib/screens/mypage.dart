@@ -20,7 +20,8 @@ class MyPageScreen extends StatefulWidget {
   State<MyPageScreen> createState() => _MyPageScreenState();
 }
 
-class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderStateMixin {
+class _MyPageScreenState extends State<MyPageScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String _nickname = '닉네임을 변경하세요!';
   File? _profileImage;
@@ -82,10 +83,18 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
                       child: CircleAvatar(
                         radius: 32,
                         backgroundColor: Colors.grey[300],
-                        backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-                        child: _profileImage == null
-                            ? Icon(Icons.person, size: 48, color: Colors.white)
-                            : null,
+                        backgroundImage:
+                            _profileImage != null
+                                ? FileImage(_profileImage!)
+                                : null,
+                        child:
+                            _profileImage == null
+                                ? Icon(
+                                  Icons.person,
+                                  size: 48,
+                                  color: Colors.white,
+                                )
+                                : null,
                       ),
                     ),
                   ),
@@ -133,7 +142,10 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
                             },
                             child: Text(
                               '로그아웃',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
                             ),
                           ),
                         ],
@@ -152,10 +164,7 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
           Container(
             decoration: BoxDecoration(
               border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey[200]!,
-                  width: 1,
-                ),
+                bottom: BorderSide(color: Colors.grey[200]!, width: 1),
               ),
             ),
             child: TabBar(
@@ -163,10 +172,7 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.black,
-              tabs: [
-                Tab(text: '게시물'),
-                Tab(text: '구매 내역'),
-              ],
+              tabs: [Tab(text: '게시물'), Tab(text: '구매 내역')],
             ),
           ),
 
@@ -178,22 +184,22 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
                 // 게시물 탭
                 Obx(() {
                   if (_feedController.userItems.isEmpty) {
-                    return const Center(
-                      child: Text('작성한 게시물이 없습니다.'),
-                    );
+                    return const Center(child: Text('작성한 게시물이 없습니다.'));
                   }
                   return GridView.builder(
                     padding: const EdgeInsets.all(4.0),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 4.0,
-                      mainAxisSpacing: 4.0,
-                      childAspectRatio: 1.0,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 4.0,
+                          mainAxisSpacing: 4.0,
+                          childAspectRatio: 1.0,
+                        ),
                     itemCount: _feedController.userItems.length,
                     itemBuilder: (context, index) {
                       final feed = _feedController.userItems[index];
-                      if (feed.imagePathList.isEmpty || feed.imagePathList[0].isEmpty) {
+                      if (feed.imagePathList.isEmpty ||
+                          feed.imagePathList[0].isEmpty) {
                         return Container();
                       }
                       final imageUrl = feed.imagePathList[0];
@@ -203,12 +209,13 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PostDetailScreen(
-                                imageUrls: feed.imagePathList,
-                                nickname: feed.userName,
-                                date: feed.createdAt,
-                                content: feed.content,
-                              ),
+                              builder:
+                                  (context) => PostDetailScreen(
+                                    imageUrls: feed.imagePathList,
+                                    nickname: feed.userName,
+                                    date: feed.createdAt,
+                                    content: feed.content,
+                                  ),
                             ),
                           );
                         },
@@ -219,13 +226,18 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
                             if (loadingProgress == null) return child;
                             return Center(
                               child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                    : null,
+                                value:
+                                    loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
                               ),
                             );
                           },
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                          errorBuilder:
+                              (context, error, stackTrace) =>
+                                  const Icon(Icons.error),
                         ),
                       );
                     },
@@ -282,48 +294,52 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
           // 포인트
           Column(
             children: [
-              Image.asset(
-                'assets/images/mypage/btn_point.png',
-                width: 50,
-              ),
+              Image.asset('assets/images/mypage/btn_point.png', width: 50),
               SizedBox(height: 4),
               Text("포인트", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text("100P", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF34C759))),
+              Text(
+                "100P",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF34C759),
+                ),
+              ),
             ],
           ),
 
           // 이산화탄소 절감
           Column(
             children: [
-              Image.asset(
-                'assets/images/mypage/btn_co2.png',
-                width: 50,
-              ),
+              Image.asset('assets/images/mypage/btn_co2.png', width: 50),
               SizedBox(height: 4),
               Text("이산화탄소 절감", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text("3.25kg", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF34C759))),
+              Text(
+                "3.25kg",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF34C759),
+                ),
+              ),
             ],
           ),
 
           // 업사이클링 상점 (클릭 시 이동)
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const UpcyclingShopScreen(),
-                ),
-              );
+              Get.toNamed('/upcyclingShop');
             },
             child: Column(
               children: [
-                Image.asset(
-                'assets/images/mypage/btn_store.png',
-                width: 50,
-              ),
+                Image.asset('assets/images/mypage/btn_store.png', width: 50),
                 SizedBox(height: 4),
                 Text("업사이클링", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text("상점", style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF34C759))),
+                Text(
+                  "상점",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF34C759),
+                  ),
+                ),
               ],
             ),
           ),
@@ -334,9 +350,7 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
 
   Widget PurchaseHistoryTab() {
     if (_purchaseHistory.isEmpty) {
-      return const Center(
-        child: Text('구매 내역이 없습니다.'),
-      );
+      return const Center(child: Text('구매 내역이 없습니다.'));
     }
 
     return ListView.builder(
@@ -363,10 +377,7 @@ class _MyPageScreenState extends State<MyPageScreen> with SingleTickerProviderSt
               children: [
                 Text(
                   DateFormat('yyyy.MM.dd HH:mm').format(purchaseDate),
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 const SizedBox(height: 4),
                 const Text(
