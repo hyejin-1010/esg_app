@@ -20,6 +20,16 @@ class DBHelper {
       'assets/esg_app.db',
       version: 1,
       onOpen: (Database db) async {
+        // auth 테이블 생성
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS Auth (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nickname TEXT,
+            email TEXT,
+            password TEXT,
+          )
+        ''');
+
         await db.execute('''
           CREATE TABLE IF NOT EXISTS Feed (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

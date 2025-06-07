@@ -2,22 +2,26 @@ import 'dart:convert';
 
 class User {
   final String accessToken;
-  final String userId;
+  final String nickname;
   final String email;
 
-  User({required this.accessToken, required this.userId, required this.email});
+  User({
+    required this.accessToken,
+    required this.nickname,
+    required this.email,
+  });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       accessToken: json['accessToken'],
-      userId: json['userId'],
+      nickname: json['nickname'],
       email: json['email'],
     );
   }
 
   static Map<String, dynamic> toMap(User model) => <String, dynamic>{
     'accessToken': model.accessToken,
-    'userId': model.userId,
+    'nickname': model.nickname,
     'email': model.email,
   };
 
