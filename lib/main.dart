@@ -20,6 +20,7 @@ import 'screens/mypage.dart';
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  FlutterNativeSplash.remove();
 
   Get.put(FeedController());
   Get.put(MissionController());
@@ -105,10 +106,7 @@ class MyApp extends StatelessWidget {
           name: '/register-mission',
           page: () => const RegisterMissionScreen(),
         ),
-        GetPage(
-          name: '/mypage',
-          page: () => MyPageScreen(initialTab: 0),
-        ),
+        GetPage(name: '/mypage', page: () => MyPageScreen(initialTab: 0)),
       ],
     );
   }
