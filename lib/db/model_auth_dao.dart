@@ -1,5 +1,6 @@
 import 'package:esg_app/db/db_helper.dart';
-import 'package:esg_app/models/favorite_model.dart';
+
+import '../models/auth.dart';
 
 class AuthDao {
   // 같은 닉네임이 있으면 true, 없으면 false
@@ -16,8 +17,22 @@ class AuthDao {
     return res.isNotEmpty;
   }
 
-  Future<int> insertItem(Favorite item) async {
+  // 같은 유저가 있으면 true, 없으면 false
+  Future<bool> checkDuplicateUser(String email) async {
     final db = await DBHelper.database;
-    return await db.insert('Favorite', item.toMap());
+    final res = await db.rawQuery(
+      '''
+      SELECT email
+      FROM Auth
+      WHERE email = ?
+    ''',
+      [email],
+    );
+    return res.isNotEmpty;
+  }
+
+  Future<int> insertUser(AuthUser user) async {
+    final db = await DBHelper.database;
+    return await db.insert('Auth', AuthUser.toMap(user));
   }
 }

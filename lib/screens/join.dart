@@ -18,7 +18,7 @@ class _JoinScreenState extends State<JoinScreen> {
   String email = '';
   String password = '';
   String? nicknameErrorText;
-  bool isDuplicate = false;
+  bool isNotDuplicate = false;
   bool isLoading = false;
 
   final _formKey = material.GlobalKey<material.FormState>();
@@ -44,7 +44,7 @@ class _JoinScreenState extends State<JoinScreen> {
   }
 
   // 실제 서버가 없으니 랜덤으로 중복 체크
-  Future<void> checkDuplicateId() async {
+  Future<void> checkDuplicateNickname() async {
     String? errorText = UtilValidators.nickname(nickname);
 
     final isDuplicateNickname = await getxController.authCheckDuplicateNickname(
@@ -54,19 +54,19 @@ class _JoinScreenState extends State<JoinScreen> {
     if (isDuplicateNickname && errorText == null) {
       setState(() {
         nicknameErrorText = '이미 사용중인 아이디입니다.';
-        isDuplicate = false;
+        isNotDuplicate = false;
       });
     } else if (errorText == null) {
       // 성공
       setState(() {
         nicknameErrorText = errorText;
-        isDuplicate = true;
+        isNotDuplicate = true;
       });
     } else {
       // 실패
       setState(() {
         nicknameErrorText = errorText;
-        isDuplicate = false;
+        isNotDuplicate = false;
       });
     }
   }
@@ -133,7 +133,7 @@ class _JoinScreenState extends State<JoinScreen> {
                               child: CustomTextFormField(
                                 label: '아이디',
                                 icon: Icons.person,
-                                enabled: !isDuplicate,
+                                enabled: !isNotDuplicate,
                                 errorText: nicknameErrorText,
                                 validator: UtilValidators.nickname,
                                 onChanged: onChangedNickname,
@@ -151,7 +151,9 @@ class _JoinScreenState extends State<JoinScreen> {
                                       ),
                                     ),
                                 onPressed:
-                                    !isDuplicate ? checkDuplicateId : null,
+                                    !isNotDuplicate
+                                        ? checkDuplicateNickname
+                                        : null,
                                 child:
                                     const Text(
                                       '중복체크',
