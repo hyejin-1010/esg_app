@@ -24,7 +24,7 @@ class UtilValidators {
     return null;
   }
 
-  static String? userId(String? value) {
+  static String? nickname(String? value) {
     if (value == null || value.isEmpty) {
       return '아이디를 입력해 주세요.';
     }

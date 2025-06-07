@@ -22,6 +22,7 @@ import 'screens/start_screen.dart';
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  FlutterNativeSplash.remove();
 
   Get.put(FeedController());
   Get.put(MissionController());
