@@ -2,11 +2,15 @@ import 'package:esg_app/controllers/find_controller.dart';
 import 'package:esg_app/controllers/mission_controller.dart';
 import 'package:esg_app/screens/home.dart';
 import 'package:esg_app/screens/login.dart';
+import 'package:esg_app/screens/map.dart';
 import 'package:esg_app/screens/register_mission.dart';
 import 'package:esg_app/screens/upcycling_shop_detail_screen.dart';
 import 'package:esg_app/screens/upcycling_shop_order_screen.dart';
 import 'package:esg_app/screens/upcycling_shop_screen.dart';
 import 'package:flutter/material.dart' as material;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:get/route_manager.dart';
 import 'package:esg_app/constant/color.dart';
 import 'package:esg_app/screens/find_new_password.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
@@ -21,6 +25,26 @@ import 'screens/start_screen.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  // .env 파일 로드
+  await dotenv.load(fileName: ".env");
+
+  await FlutterNaverMap().init(
+    clientId: dotenv.get('NAVER_CLIENT_ID'),
+    onAuthFailed: (ex) {
+      switch (ex) {
+        case NQuotaExceededException(:final message):
+          print("사용량 초과 (message: $message)");
+          break;
+        case NUnauthorizedClientException() ||
+            NClientUnspecifiedException() ||
+            NAnotherAuthFailedException():
+          print("인증 실패: $ex");
+          break;
+      }
+    },
+  );
+
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   FlutterNativeSplash.remove();
 
@@ -104,6 +128,7 @@ class MyApp extends StatelessWidget {
           page: () => const FindNewPasswordScreen(),
         ),
         GetPage(name: '/home', page: () => const HomeScreen()),
+        GetPage(name: '/map', page: () => const MapScreen()),
         GetPage(
           name: '/register-mission',
           page: () => const RegisterMissionScreen(),
