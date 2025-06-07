@@ -44,7 +44,7 @@ class _JoinScreenState extends State<JoinScreen> {
   }
 
   // 실제 서버가 없으니 랜덤으로 중복 체크
-  Future<void> checkDuplicateId() async {
+  Future<void> checkDuplicateNickname() async {
     String? errorText = UtilValidators.nickname(nickname);
 
     final isDuplicateNickname = await getxController.authCheckDuplicateNickname(
@@ -151,7 +151,9 @@ class _JoinScreenState extends State<JoinScreen> {
                                       ),
                                     ),
                                 onPressed:
-                                    !isDuplicate ? checkDuplicateId : null,
+                                    !isDuplicate
+                                        ? checkDuplicateNickname
+                                        : null,
                                 child:
                                     const Text(
                                       '중복체크',
