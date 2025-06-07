@@ -1,8 +1,8 @@
 name: esg_app
-description: "Mobile Programming ESG Project."
+description: 'Mobile Programming ESG Project.'
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -46,6 +46,9 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   uuid: ^4.5.1
   get: ^4.7.2
+  flutter_naver_map: ^1.3.1
+  flutter_dotenv: ^5.2.1
+  geolocator: ^14.0.0
   image_picker: ^1.1.2
   path_provider: ^2.1.5
   carousel_slider: ^5.0.0
@@ -78,6 +81,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - .env
     - assets/images/
     - assets/images/find/
     - assets/esg_app.db
