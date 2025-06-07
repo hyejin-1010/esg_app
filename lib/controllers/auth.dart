@@ -2,7 +2,6 @@ import 'package:esg_app/db/model_auth_dao.dart';
 import 'package:esg_app/models/auth.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:uuid/uuid.dart';
 
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -21,14 +20,29 @@ class AuthController extends GetxController {
     required String email,
     required String password,
   }) async {
-    String uuid = const Uuid().v4();
-    User newUser = User(accessToken: uuid, nickname: nickname, email: email);
+    AuthUser newUser = AuthUser(
+      nickname: nickname,
+      email: email,
+      password: hashPassword(password),
+    );
 
-    // 스토리지에 저장
-    final storage = const FlutterSecureStorage();
-    await storage.write(key: 'user', value: User.serialize(newUser));
+    // DB에 저장
+    AuthDao authDao = AuthDao();
+    final isDuplicateNickname = await authDao.checkDuplicateNickname(nickname);
+    if (isDuplicateNickname) {
+      throw Exception('이미 사용중인 닉네임입니다.');
+    }
+    final isDuplicateUser = await authDao.checkDuplicateUser(email);
+    if (isDuplicateUser) {
+      throw Exception('이미 사용중인 이메일입니다.');
+    }
+    final newUserId = await authDao.insertUser(newUser);
 
-    _user = newUser;
+    _user = User(
+      userId: newUserId,
+      nickname: newUser.nickname,
+      email: newUser.email,
+    );
 
     // 2초 대기
     await Future.delayed(const Duration(seconds: 2));
@@ -65,7 +79,5 @@ class AuthController extends GetxController {
   }
 
   get user => _user;
-
-  // TODO: 추후 DB 아이디로 변경 필요
-  get userId => 1;
+  get userId => _user.userId;
 }
