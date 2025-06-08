@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../components/mission/search_box.dart';
+
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
@@ -24,11 +26,22 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: NaverMap(
-        options: const NaverMapViewOptions(),
-        onMapReady: (controller) {
-          print("네이버 맵 로딩됨!");
-        },
+      body: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: SearchBox(onChanged: (value) {}),
+          ),
+          const SizedBox(height: 24.0),
+          Flexible(
+            child: NaverMap(
+              options: const NaverMapViewOptions(),
+              onMapReady: (controller) {
+                print("네이버 맵 로딩됨!");
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
