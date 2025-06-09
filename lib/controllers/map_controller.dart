@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 class MapController extends GetxController {
   final poiCategories = <PoiCategory>[].obs;
+  List<PoiItem> poiItems = [];
 
   @override
   void onInit() {
@@ -26,5 +27,25 @@ class MapController extends GetxController {
       PoiCategory(id: 12, name: '치과'),
       PoiCategory(id: 13, name: '치킨'),
     ];
+  }
+
+  Future<void> loadPoiItems() async {
+    // 임시 데이터
+    poiItems = [
+      PoiItem(
+        title: '테스트 장소 1',
+        description: '테스트 설명입니다.',
+        lat: 37.5665,
+        lng: 126.9780,
+        address: '서울특별시 중구 세종대로 110',
+        roadAddress: '서울특별시 중구 세종대로 110',
+        category: '카페',
+        tel: '02-1234-5678',
+        url: 'https://map.naver.com/v5/search/서울특별시 중구 세종대로 110',
+        imageUrl: 'https://picsum.photos/1000/1000',
+      ),
+      // 더 많은 아이템 추가 가능
+    ];
+    update();
   }
 }

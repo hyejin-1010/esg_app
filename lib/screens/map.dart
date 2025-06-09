@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'dart:async';
 
 import '../components/mission/search_box.dart';
+import '../components/map/poi_list_item.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -34,6 +36,7 @@ class _MapScreenState extends State<MapScreen> {
     // }
 
     _loadPoiCategories();
+    _loadPoiItems();
   }
 
   @override
@@ -48,6 +51,10 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {
       poiCategories = _mapController.poiCategories;
     });
+  }
+
+  void _loadPoiItems() async {
+    await _mapController.loadPoiItems();
   }
 
   @override
@@ -189,6 +196,7 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
+                SheetViewport(child: _MySheet(items: _mapController.poiItems)),
               ],
             ),
           ),
@@ -235,6 +243,91 @@ Future<void> requestGeolocationPermission() async {
     // Permissions are denied forever, handle appropriately.
     return Future.error(
       'Location permissions are permanently denied, we cannot request permissions.',
+    );
+  }
+}
+
+class _MySheet extends StatelessWidget {
+  final List<PoiItem> items;
+
+  const _MySheet({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    final ScrollController scrollController = ScrollController();
+
+    return Sheet(
+      dragConfiguration: SheetDragConfiguration(),
+      decoration: MaterialSheetDecoration(
+        size: SheetSize.stretch,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        color: Colors.white,
+        elevation: 4,
+      ),
+      snapGrid: const SheetSnapGrid(
+        snaps: [SheetOffset(0.1), SheetOffset(0.5), SheetOffset(0.83)],
+      ),
+      scrollConfiguration: const SheetScrollConfiguration(),
+      child: Stack(
+        children: [
+          ListView.builder(
+            controller: scrollController,
+            padding: EdgeInsets.only(
+              top: const _ContentSheetHandle().preferredSize.height,
+            ),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              return PoiListItem(item: items[index]);
+            },
+          ),
+          GestureDetector(
+            onTap: () {
+              scrollController.animateTo(
+                0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+              );
+            },
+            child: _ContentSheetHandle(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ContentSheetHandle extends StatelessWidget
+    implements PreferredSizeWidget {
+  const _ContentSheetHandle();
+
+  @override
+  Size get preferredSize => const Size.fromHeight(46);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: SizedBox.fromSize(
+        size: preferredSize,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [buildIndicator(), const SizedBox(height: 16)],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildIndicator() {
+    return Container(
+      height: 6,
+      width: 40,
+      decoration: const ShapeDecoration(
+        color: Colors.black12,
+        shape: StadiumBorder(),
+      ),
     );
   }
 }
