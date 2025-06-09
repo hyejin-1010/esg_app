@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'dart:async';
+import 'dart:developer';
 
 import '../components/mission/search_box.dart';
 import '../components/map/poi_list_item.dart';
@@ -20,27 +22,36 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   List<PoiCategory> poiCategories = [];
   final MapController _mapController = Get.find<MapController>();
+  late final NaverMapController _naverMapController;
   int? selectedCategoryId;
   Timer? _debounceTimer;
   bool showSearchButton = false;
+  late final SheetController _sheetController;
 
   @override
   void initState() {
     super.initState();
+    _sheetController = SheetController();
 
-    // TODO: 위치 권한 요청
-    // try {
-    //   requestGeolocationPermission();
-    // } catch (error) {
-    //   print('error: $error');
-    // }
-
-    _loadPoiCategories();
-    _loadPoiItems();
+    // 위치 권한 요청
+    requestGeolocationPermission()
+        .then((isGranted) {
+          if (isGranted) {
+            _naverMapController.setLocationTrackingMode(
+              NLocationTrackingMode.follow,
+            );
+          }
+          _loadPoiCategories();
+          _loadPoiItems();
+        })
+        .catchError((error) {
+          log('error: $error');
+        });
   }
 
   @override
   void dispose() {
+    _sheetController.dispose();
     _debounceTimer?.cancel();
     super.dispose();
   }
@@ -57,9 +68,14 @@ class _MapScreenState extends State<MapScreen> {
     await _mapController.loadPoiItems();
   }
 
+  void onTapLocation() {
+    log('onTapLocation');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: Column(
         children: [
           Padding(
@@ -79,6 +95,7 @@ class _MapScreenState extends State<MapScreen> {
           Expanded(
             child: Stack(
               children: [
+                // 지도
                 NaverMap(
                   options: const NaverMapViewOptions(),
                   onCameraChange: (reason, animated) {
@@ -92,7 +109,11 @@ class _MapScreenState extends State<MapScreen> {
                       },
                     );
                   },
+                  onMapReady: (controller) {
+                    _naverMapController = controller;
+                  },
                 ),
+                // 카테고리
                 Positioned(
                   top: 0,
                   left: 0,
@@ -153,6 +174,7 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
+                // 이 지역 검색하기 버튼
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
                   top: showSearchButton ? 60 : -60,
@@ -164,6 +186,8 @@ class _MapScreenState extends State<MapScreen> {
                     child: Center(
                       child: GestureDetector(
                         onTap: () {
+                          print('이 지역 검색하기');
+
                           setState(() {
                             showSearchButton = false;
                           });
@@ -196,7 +220,41 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-                SheetViewport(child: _MySheet(items: _mapController.poiItems)),
+                // 내 위치로 이동 버튼
+                Positioned(
+                  bottom: 120,
+                  right: 16,
+                  child: SlideTransition(
+                    position: SheetOffsetDrivenAnimation(
+                      controller: _sheetController,
+                      initialValue: 0,
+                    ).drive(
+                      Tween(begin: Offset(0, 1.1), end: const Offset(0, -8.4)),
+                    ),
+                    child: FloatingActionButton(
+                      mini: true,
+                      backgroundColor: Colors.white,
+                      onPressed: () async {
+                        //  내 위치로 이동
+                        _naverMapController.setLocationTrackingMode(
+                          NLocationTrackingMode.follow,
+                        );
+                      },
+                      child: const Icon(
+                        Icons.my_location,
+                        color: Color(0xFF65C466),
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+                // 바텀 시트
+                SheetViewport(
+                  child: _MySheet(
+                    items: _mapController.poiItems,
+                    controller: _sheetController,
+                  ),
+                ),
               ],
             ),
           ),
@@ -206,57 +264,26 @@ class _MapScreenState extends State<MapScreen> {
   }
 }
 
-Future<void> requestGeolocationPermission() async {
-  bool serviceEnabled;
-  LocationPermission permission;
-  final GeolocatorPlatform geolocatorPlatform = GeolocatorPlatform.instance;
+Future<bool> requestGeolocationPermission() async {
+  final response = await Permission.location.request();
 
-  // Test if location services are enabled.
-  serviceEnabled = await geolocatorPlatform.isLocationServiceEnabled();
-  print('serviceEnabled: $serviceEnabled');
-
-  if (!serviceEnabled) {
-    // Location services are not enabled don't continue
-    // accessing the position and request users of the
-    // App to enable the location services.
-    return Future.error('Location services are disabled.');
-  }
-
-  permission = await geolocatorPlatform.checkPermission();
-  print('permission: $permission');
-
-  if (permission == LocationPermission.denied) {
-    permission = await geolocatorPlatform.requestPermission();
-    print('permission request: $permission');
-
-    if (permission == LocationPermission.denied) {
-      // Permissions are denied, next time you could try
-      // requesting permissions again (this is also where
-      // Android's shouldShowRequestPermissionRationale
-      // returned true. According to Android guidelines
-      // your App should show an explanatory UI now.
-      return Future.error('Location permissions are denied');
-    }
-  }
-
-  if (permission == LocationPermission.deniedForever) {
-    // Permissions are denied forever, handle appropriately.
-    return Future.error(
-      'Location permissions are permanently denied, we cannot request permissions.',
-    );
-  }
+  return response.isGranted;
 }
 
 class _MySheet extends StatelessWidget {
   final List<PoiItem> items;
+  final SheetController controller;
 
-  const _MySheet({required this.items});
+  const _MySheet({required this.items, required this.controller});
 
   @override
   Widget build(BuildContext context) {
     final ScrollController scrollController = ScrollController();
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final minOffset = SheetOffset.absolute(56 + bottomPadding);
 
     return Sheet(
+      controller: controller,
       dragConfiguration: SheetDragConfiguration(),
       decoration: MaterialSheetDecoration(
         size: SheetSize.stretch,
@@ -264,8 +291,8 @@ class _MySheet extends StatelessWidget {
         color: Colors.white,
         elevation: 4,
       ),
-      snapGrid: const SheetSnapGrid(
-        snaps: [SheetOffset(0.1), SheetOffset(0.5), SheetOffset(0.83)],
+      snapGrid: SheetSnapGrid(
+        snaps: [minOffset, const SheetOffset(0.5), const SheetOffset(0.83)],
       ),
       scrollConfiguration: const SheetScrollConfiguration(),
       child: Stack(

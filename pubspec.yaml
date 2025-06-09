@@ -60,6 +60,7 @@ dependencies:
   smooth_sheets: ^0.12.0
   faker: ^2.2.0
   webview_flutter: ^4.7.0
+  permission_handler: ^12.0.0+1
 
 dev_dependencies:
   flutter_test:
