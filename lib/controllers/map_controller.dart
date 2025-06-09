@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:faker/faker.dart';
+import 'package:uuid/uuid.dart';
 
 class MapController extends GetxController {
   final poiCategories = <PoiCategory>[].obs;
@@ -40,6 +41,7 @@ class MapController extends GetxController {
           storeRecords.map((record) {
             final properties = record['properties'];
             return PoiItem(
+              id: Uuid().v4(),
               title: properties['cot_conts_name'] ?? '',
               description: properties['cot_value_02'] ?? '',
               lat: (properties['cot_coord_y'] as num?)?.toDouble() ?? 0.0,
@@ -84,6 +86,7 @@ class MapController extends GetxController {
       final List<PoiItem> trashItems =
           trashRecords.map((record) {
             return PoiItem(
+              id: Uuid().v4(),
               title: record['휴지통종류'] ?? '',
               description: record['관리기관명'] ?? '',
               lat: double.tryParse(record['위도'] ?? '0.0') ?? 0.0,
@@ -99,7 +102,7 @@ class MapController extends GetxController {
           }).toList();
 
       // 모든 아이템 합치기
-      poiItems = [...storeItems, ...trashItems];
+      poiItems = [...storeItems, ...trashItems].take(50).toList();
 
       update();
       log(

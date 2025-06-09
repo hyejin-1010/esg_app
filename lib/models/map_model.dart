@@ -6,6 +6,7 @@ class PoiCategory {
 }
 
 class PoiItem {
+  final String id;
   final String title;
   final String description;
   final double lat;
@@ -18,6 +19,7 @@ class PoiItem {
   final String? imageUrl;
 
   PoiItem({
+    required this.id,
     required this.title,
     required this.description,
     required this.lat,
@@ -32,6 +34,7 @@ class PoiItem {
 
   factory PoiItem.fromJson(Map<String, dynamic> json) {
     return PoiItem(
+      id: json['id'],
       title: json['title'].toString(),
       description: json['description'].toString(),
       lat: (json['lat'] as num).toDouble(),

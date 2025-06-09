@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
+
 import 'package:esg_app/controllers/map_controller.dart';
 import 'package:esg_app/models/map_model.dart';
 import 'package:flutter/material.dart';
@@ -40,14 +44,40 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
-  void _loadStoreData() async {
+  Future<void> _loadStoreData() async {
     await _mapController.loadStoreData();
   }
 
-  void _onMapReady(NaverMapController controller) {
-    _naverMapController = controller;
+  String _getIconPath(String category) {
+    switch (category) {
+      case '리필샵':
+        return 'assets/icon/map/refill_shop.png';
+      case '친환경생필품점':
+        return 'assets/icon/map/eco.png';
+      case '카페':
+        return 'assets/icon/map/cafe.png';
+      case '식당':
+        return 'assets/icon/map/restaurant.png';
+      case '일반쓰레기':
+        return 'assets/icon/map/general_waste.png';
+      case '재활용쓰레기':
+      case '일반쓰레기+재활용쓰':
+        return 'assets/icon/map/recyclable_waste.png';
+      default:
+        return 'assets/icon/map/others.png';
+    }
+  }
 
-    // 위치 권한 요청
+  Future<NOverlayImage> _getIconImage(String iconPath) async {
+    final ByteData data = await rootBundle.load(iconPath);
+    final bytes = data.buffer.asUint8List();
+    return await NOverlayImage.fromByteArray(bytes);
+  }
+
+  void _onMapReady(NaverMapController controller) async {
+    _naverMapController = controller;
+    _naverMapController.clearOverlays();
+
     requestGeolocationPermission()
         .then((isGranted) async {
           if (isGranted) {
@@ -68,7 +98,24 @@ class _MapScreenState extends State<MapScreen> {
             log('position: $position');
           }
 
-          _loadStoreData();
+          await _loadStoreData();
+
+          final overlays = <NMarker>[];
+          for (final item in _mapController.poiItems) {
+            final iconPath = _getIconPath(item.category);
+            final icon = await _getIconImage(iconPath);
+
+            overlays.add(
+              NMarker(
+                id: item.id,
+                position: NLatLng(item.lat, item.lng),
+                icon: icon,
+                size: const NSize(31.5, 41.5),
+              ),
+            );
+          }
+
+          _naverMapController.addOverlayAll(overlays.toSet());
         })
         .catchError((error) {
           log('error: $error');
