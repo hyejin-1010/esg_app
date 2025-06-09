@@ -20,7 +20,6 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  List<PoiCategory> poiCategories = [];
   final MapController _mapController = Get.find<MapController>();
   late final NaverMapController _naverMapController;
   int? selectedCategoryId;
@@ -32,21 +31,6 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _sheetController = SheetController();
-
-    // 위치 권한 요청
-    requestGeolocationPermission()
-        .then((isGranted) {
-          if (isGranted) {
-            _naverMapController.setLocationTrackingMode(
-              NLocationTrackingMode.follow,
-            );
-          }
-          _loadPoiCategories();
-          _loadPoiItems();
-        })
-        .catchError((error) {
-          log('error: $error');
-        });
   }
 
   @override
@@ -56,20 +40,51 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
-  void _loadPoiCategories() async {
-    await _mapController.loadPoiCategories();
+  void _loadStoreData() async {
+    await _mapController.loadStoreData();
+  }
 
-    setState(() {
-      poiCategories = _mapController.poiCategories;
+  void _onMapReady(NaverMapController controller) {
+    _naverMapController = controller;
+
+    // 위치 권한 요청
+    requestGeolocationPermission()
+        .then((isGranted) async {
+          if (isGranted) {
+            _naverMapController.setLocationTrackingMode(
+              NLocationTrackingMode.follow,
+            );
+
+            setState(() {
+              showSearchButton = false;
+            });
+
+            Position position = await Geolocator.getCurrentPosition(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.best,
+              ),
+            );
+
+            log('position: $position');
+          }
+
+          _loadStoreData();
+        })
+        .catchError((error) {
+          log('error: $error');
+        });
+  }
+
+  void _onCameraChange(NCameraUpdateReason reason, bool animated) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 200), () {
+      log('reason: $reason');
+      log('animated: $animated');
+
+      setState(() {
+        showSearchButton = true;
+      });
     });
-  }
-
-  void _loadPoiItems() async {
-    await _mapController.loadPoiItems();
-  }
-
-  void onTapLocation() {
-    log('onTapLocation');
   }
 
   @override
@@ -98,20 +113,8 @@ class _MapScreenState extends State<MapScreen> {
                 // 지도
                 NaverMap(
                   options: const NaverMapViewOptions(),
-                  onCameraChange: (reason, animated) {
-                    _debounceTimer?.cancel();
-                    _debounceTimer = Timer(
-                      const Duration(milliseconds: 200),
-                      () {
-                        setState(() {
-                          showSearchButton = true;
-                        });
-                      },
-                    );
-                  },
-                  onMapReady: (controller) {
-                    _naverMapController = controller;
-                  },
+                  onCameraChange: _onCameraChange,
+                  onMapReady: _onMapReady,
                 ),
                 // 카테고리
                 Positioned(
@@ -123,9 +126,9 @@ class _MapScreenState extends State<MapScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: poiCategories.length,
+                      itemCount: _mapController.poiCategories.length,
                       itemBuilder: (context, index) {
-                        final category = poiCategories[index];
+                        final category = _mapController.poiCategories[index];
                         final isSelected = selectedCategoryId == category.id;
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
@@ -229,7 +232,7 @@ class _MapScreenState extends State<MapScreen> {
                       controller: _sheetController,
                       initialValue: 0,
                     ).drive(
-                      Tween(begin: Offset(0, 1.1), end: const Offset(0, -8.4)),
+                      Tween(begin: Offset(0, 1.1), end: const Offset(0, -8)),
                     ),
                     child: FloatingActionButton(
                       mini: true,
@@ -284,6 +287,7 @@ class _MySheet extends StatelessWidget {
 
     return Sheet(
       controller: controller,
+      initialOffset: SheetOffset.absolute(56 + bottomPadding),
       dragConfiguration: SheetDragConfiguration(),
       decoration: MaterialSheetDecoration(
         size: SheetSize.stretch,
