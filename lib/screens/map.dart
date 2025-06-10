@@ -24,15 +24,20 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   final MapController _mapController = Get.find<MapController>();
   late final NaverMapController _naverMapController;
+  late final SheetController _sheetController;
+  static const _defaultZoom = 14.0;
+
   int? selectedCategoryId;
   Timer? _debounceTimer;
   bool showSearchButton = false;
-  late final SheetController _sheetController;
+  bool isMapReady = false;
 
   @override
   void initState() {
     super.initState();
     _sheetController = SheetController();
+
+    _loadStoreData();
   }
 
   @override
@@ -74,38 +79,13 @@ class _MapScreenState extends State<MapScreen> {
     return await NOverlayImage.fromByteArray(bytes);
   }
 
-  // 지도 준비 완료 시 실행
-  void _onMapReady(NaverMapController controller) async {
-    _naverMapController = controller;
-    _naverMapController.clearOverlays();
-
-    requestGeolocationPermission()
-        .then((isGranted) async {
-          if (isGranted) {
-            _naverMapController.setLocationTrackingMode(
-              NLocationTrackingMode.follow,
-            );
-
-            setState(() {
-              showSearchButton = false;
-            });
-
-            Position position = await Geolocator.getCurrentPosition(
-              locationSettings: const LocationSettings(
-                accuracy: LocationAccuracy.best,
-              ),
-            );
-
-            log('position: $position');
-            await _mapController.updateNearbyPoiItems(position);
-          }
-
-          await _loadStoreData();
-          await _updateMapMarkers();
-        })
-        .catchError((error) {
-          log('error: $error');
-        });
+  // 내 위치로 카메라 이동
+  void _moveCameraToMyLocation(Position position) async {
+    final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
+      target: NLatLng(position.latitude, position.longitude),
+      zoom: _defaultZoom,
+    );
+    _naverMapController.updateCamera(cameraUpdate);
   }
 
   // 마커 업데이트
@@ -129,10 +109,64 @@ class _MapScreenState extends State<MapScreen> {
     _naverMapController.addOverlayAll(overlays.toSet());
   }
 
+  Future<void> _getPoiItemsAndUpdateMarkers({
+    required double lat,
+    required double lng,
+    double? zoom,
+  }) async {
+    await _mapController.updateNearbyPoiItems(lat: lat, lng: lng, zoom: zoom);
+    await _updateMapMarkers();
+  }
+
+  // 지도 준비 완료 시 실행
+  void _onMapReady(NaverMapController controller) async {
+    _naverMapController = controller;
+    _naverMapController.clearOverlays();
+
+    requestGeolocationPermission()
+        .then((isGranted) async {
+          if (isGranted) {
+            _naverMapController.setLocationTrackingMode(
+              NLocationTrackingMode.follow,
+            );
+
+            Position position = await Geolocator.getCurrentPosition(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.best,
+              ),
+            );
+
+            // 내 위치로 카메라 이동
+            _moveCameraToMyLocation(position);
+
+            log('position: $position');
+            await _getPoiItemsAndUpdateMarkers(
+              lat: position.latitude,
+              lng: position.longitude,
+              zoom: _defaultZoom,
+            );
+          }
+
+          setState(() {
+            isMapReady = true;
+            showSearchButton = false;
+          });
+        })
+        .catchError((error) {
+          log('error: $error');
+        });
+  }
+
   // 카메라 이동 종료 시 실행
   Future<void> _onCameraIdle() async {
-    setState(() {
-      showSearchButton = true;
+    if (!isMapReady) return;
+
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 200), () {
+      log('onCameraIdle');
+      setState(() {
+        showSearchButton = true;
+      });
     });
   }
 
@@ -140,12 +174,11 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _onSearchButtonTap() async {
     final cameraPosition = await _naverMapController.getCameraPosition();
 
-    await _mapController.updateNearbyPoiItemsByPosition(
-      cameraPosition.target.latitude,
-      cameraPosition.target.longitude,
+    await _getPoiItemsAndUpdateMarkers(
+      lat: cameraPosition.target.latitude,
+      lng: cameraPosition.target.longitude,
       zoom: cameraPosition.zoom,
     );
-    await _updateMapMarkers();
     setState(() {
       showSearchButton = false;
     });
@@ -157,15 +190,14 @@ class _MapScreenState extends State<MapScreen> {
     final position = await Geolocator.getCurrentPosition();
 
     // 내 위치 주변 아이템 업데이트
-    await _mapController.updateNearbyPoiItems(position, zoom: 14);
-    await _updateMapMarkers();
+    await _getPoiItemsAndUpdateMarkers(
+      lat: position.latitude,
+      lng: position.longitude,
+      zoom: _defaultZoom,
+    );
 
     // 내 위치로 카메라 이동
-    final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
-      target: NLatLng(position.latitude, position.longitude),
-      zoom: 14,
-    );
-    _naverMapController.updateCamera(cameraUpdate);
+    _moveCameraToMyLocation(position);
 
     setState(() {
       showSearchButton = false;

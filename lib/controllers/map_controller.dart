@@ -12,7 +12,6 @@ class MapController extends GetxController {
   final poiCategories = <PoiCategory>[].obs;
   List<PoiItem> poiItems = [];
   List<PoiItem> nearbyPoiItems = <PoiItem>[].obs;
-  Position? currentPosition;
 
   @override
   void onInit() {
@@ -144,20 +143,18 @@ class MapController extends GetxController {
   }
 
   double _getDistanceByZoom(double zoom) {
-    if (zoom >= 14) return 500; // 500m
-    if (zoom == 13) return 1000; // 1km
+    if (zoom >= 13) return 1000; // 1km
     if (zoom >= 11 && zoom < 13) return 3000; // 3km
     if (zoom == 10) return 5000; // 5km
     return 10000; // 10km (zoom <= 9)
   }
 
-  Future<void> updateNearbyPoiItems(Position position, {double? zoom}) async {
-    currentPosition = position;
-    await updateNearbyPoiItemsByPosition(
-      position.latitude,
-      position.longitude,
-      zoom: zoom,
-    );
+  Future<void> updateNearbyPoiItems({
+    required double lat,
+    required double lng,
+    double? zoom,
+  }) async {
+    await updateNearbyPoiItemsByPosition(lat, lng, zoom: zoom);
   }
 
   // Future<void> loadPoiCategories() async {
