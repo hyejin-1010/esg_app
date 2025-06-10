@@ -6,10 +6,13 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:faker/faker.dart';
 import 'package:uuid/uuid.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MapController extends GetxController {
   final poiCategories = <PoiCategory>[].obs;
   List<PoiItem> poiItems = [];
+  List<PoiItem> nearbyPoiItems = <PoiItem>[].obs;
+  Position? currentPosition;
 
   @override
   void onInit() {
@@ -102,7 +105,9 @@ class MapController extends GetxController {
           }).toList();
 
       // 모든 아이템 합치기
-      poiItems = [...storeItems, ...trashItems].take(50).toList();
+      poiItems = [...storeItems, ...trashItems];
+      poiItems.shuffle(); // 랜덤 섞기
+      poiItems = poiItems.toList();
 
       update();
       log(
@@ -112,6 +117,49 @@ class MapController extends GetxController {
       log('Error loading data: $e');
     }
   }
+
+  Future<void> updateNearbyPoiItemsByPosition(
+    double lat,
+    double lng, {
+    double? zoom,
+  }) async {
+    final distance = _getDistanceByZoom(zoom ?? 11.0);
+    final filteredItems =
+        poiItems.where((item) {
+          final itemDistance = Geolocator.distanceBetween(
+            lat,
+            lng,
+            item.lat,
+            item.lng,
+          );
+          return itemDistance <= distance;
+        }).toList();
+
+    filteredItems.shuffle();
+    nearbyPoiItems = filteredItems.take(100).toList();
+
+    log('filteredItems: ${filteredItems.length}');
+    log('nearbyPoiItems: ${nearbyPoiItems.length}');
+    update();
+  }
+
+  double _getDistanceByZoom(double zoom) {
+    if (zoom >= 14) return 500; // 500m
+    if (zoom == 13) return 1000; // 1km
+    if (zoom >= 11 && zoom < 13) return 3000; // 3km
+    if (zoom == 10) return 5000; // 5km
+    return 10000; // 10km (zoom <= 9)
+  }
+
+  Future<void> updateNearbyPoiItems(Position position, {double? zoom}) async {
+    currentPosition = position;
+    await updateNearbyPoiItemsByPosition(
+      position.latitude,
+      position.longitude,
+      zoom: zoom,
+    );
+  }
+
   // Future<void> loadPoiCategories() async {
   //   poiCategories.value = [
   //     PoiCategory(id: 1, name: '카페'),

@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 
 import 'package:esg_app/controllers/map_controller.dart';
@@ -48,6 +46,7 @@ class _MapScreenState extends State<MapScreen> {
     await _mapController.loadStoreData();
   }
 
+  // 아이콘 경로 반환
   String _getIconPath(String category) {
     switch (category) {
       case '리필샵':
@@ -68,12 +67,14 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  // 아이콘 이미지 반환
   Future<NOverlayImage> _getIconImage(String iconPath) async {
     final ByteData data = await rootBundle.load(iconPath);
     final bytes = data.buffer.asUint8List();
     return await NOverlayImage.fromByteArray(bytes);
   }
 
+  // 지도 준비 완료 시 실행
   void _onMapReady(NaverMapController controller) async {
     _naverMapController = controller;
     _naverMapController.clearOverlays();
@@ -96,41 +97,78 @@ class _MapScreenState extends State<MapScreen> {
             );
 
             log('position: $position');
+            await _mapController.updateNearbyPoiItems(position);
           }
 
           await _loadStoreData();
-
-          final overlays = <NMarker>[];
-          for (final item in _mapController.poiItems) {
-            final iconPath = _getIconPath(item.category);
-            final icon = await _getIconImage(iconPath);
-
-            overlays.add(
-              NMarker(
-                id: item.id,
-                position: NLatLng(item.lat, item.lng),
-                icon: icon,
-                size: const NSize(31.5, 41.5),
-              ),
-            );
-          }
-
-          _naverMapController.addOverlayAll(overlays.toSet());
+          await _updateMapMarkers();
         })
         .catchError((error) {
           log('error: $error');
         });
   }
 
-  void _onCameraChange(NCameraUpdateReason reason, bool animated) {
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 200), () {
-      log('reason: $reason');
-      log('animated: $animated');
+  // 마커 업데이트
+  Future<void> _updateMapMarkers() async {
+    final overlays = <NMarker>[];
+    for (final item in _mapController.nearbyPoiItems) {
+      final iconPath = _getIconPath(item.category);
+      final icon = await _getIconImage(iconPath);
 
-      setState(() {
-        showSearchButton = true;
-      });
+      overlays.add(
+        NMarker(
+          id: item.id,
+          position: NLatLng(item.lat, item.lng),
+          icon: icon,
+          size: const NSize(31.5, 41.5),
+        ),
+      );
+    }
+
+    _naverMapController.clearOverlays();
+    _naverMapController.addOverlayAll(overlays.toSet());
+  }
+
+  // 카메라 이동 종료 시 실행
+  Future<void> _onCameraIdle() async {
+    setState(() {
+      showSearchButton = true;
+    });
+  }
+
+  // 이 지역 검색하기 버튼 클릭
+  Future<void> _onSearchButtonTap() async {
+    final cameraPosition = await _naverMapController.getCameraPosition();
+
+    await _mapController.updateNearbyPoiItemsByPosition(
+      cameraPosition.target.latitude,
+      cameraPosition.target.longitude,
+      zoom: cameraPosition.zoom,
+    );
+    await _updateMapMarkers();
+    setState(() {
+      showSearchButton = false;
+    });
+  }
+
+  // 내 위치로 이동 버튼 클릭
+  Future<void> _onMyLocationButtonPressed() async {
+    // 현재 내 위치 가져오기
+    final position = await Geolocator.getCurrentPosition();
+
+    // 내 위치 주변 아이템 업데이트
+    await _mapController.updateNearbyPoiItems(position, zoom: 14);
+    await _updateMapMarkers();
+
+    // 내 위치로 카메라 이동
+    final cameraUpdate = NCameraUpdate.scrollAndZoomTo(
+      target: NLatLng(position.latitude, position.longitude),
+      zoom: 14,
+    );
+    _naverMapController.updateCamera(cameraUpdate);
+
+    setState(() {
+      showSearchButton = false;
     });
   }
 
@@ -160,8 +198,8 @@ class _MapScreenState extends State<MapScreen> {
                 // 지도
                 NaverMap(
                   options: const NaverMapViewOptions(),
-                  onCameraChange: _onCameraChange,
                   onMapReady: _onMapReady,
+                  onCameraIdle: _onCameraIdle,
                 ),
                 // 카테고리
                 Positioned(
@@ -235,13 +273,7 @@ class _MapScreenState extends State<MapScreen> {
                     opacity: showSearchButton ? 1.0 : 0.0,
                     child: Center(
                       child: GestureDetector(
-                        onTap: () {
-                          print('이 지역 검색하기');
-
-                          setState(() {
-                            showSearchButton = false;
-                          });
-                        },
+                        onTap: _onSearchButtonTap,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -284,12 +316,7 @@ class _MapScreenState extends State<MapScreen> {
                     child: FloatingActionButton(
                       mini: true,
                       backgroundColor: Colors.white,
-                      onPressed: () async {
-                        //  내 위치로 이동
-                        _naverMapController.setLocationTrackingMode(
-                          NLocationTrackingMode.follow,
-                        );
-                      },
+                      onPressed: _onMyLocationButtonPressed,
                       child: const Icon(
                         Icons.my_location,
                         color: Color(0xFF65C466),
@@ -301,7 +328,7 @@ class _MapScreenState extends State<MapScreen> {
                 // 바텀 시트
                 SheetViewport(
                   child: _MySheet(
-                    items: _mapController.poiItems,
+                    items: _mapController.nearbyPoiItems,
                     controller: _sheetController,
                   ),
                 ),
