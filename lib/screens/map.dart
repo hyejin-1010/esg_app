@@ -1,15 +1,15 @@
-import 'package:flutter/services.dart';
-
-import 'package:esg_app/controllers/map_controller.dart';
-import 'package:esg_app/models/map_model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
 import 'dart:async';
 import 'dart:developer';
+import 'package:get/get.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'package:esg_app/models/map_model.dart';
+import 'package:esg_app/controllers/map_controller.dart';
 
 import '../components/mission/search_box.dart';
 import '../components/map/poi_list_item.dart';
@@ -31,6 +31,8 @@ class _MapScreenState extends State<MapScreen> {
   Timer? _debounceTimer;
   bool showSearchButton = false;
   bool isMapReady = false;
+  int? selectedMarkerIndex;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -91,22 +93,76 @@ class _MapScreenState extends State<MapScreen> {
   // 마커 업데이트
   Future<void> _updateMapMarkers() async {
     final overlays = <NMarker>[];
-    for (final item in _mapController.nearbyPoiItems) {
+    for (int i = 0; i < _mapController.nearbyPoiItems.length; i++) {
+      final item = _mapController.nearbyPoiItems[i];
       final iconPath = _getIconPath(item.category);
       final icon = await _getIconImage(iconPath);
 
-      overlays.add(
-        NMarker(
-          id: item.id,
-          position: NLatLng(item.lat, item.lng),
-          icon: icon,
-          size: const NSize(31.5, 41.5),
-        ),
+      final marker = NMarker(
+        id: item.id,
+        position: NLatLng(item.lat, item.lng),
+        icon: icon,
+        size: const NSize(31.5, 41.5),
       );
+
+      marker.setOnTapListener((overlay) {
+        setState(() {
+          selectedMarkerIndex = i;
+        });
+        _sheetController.animateTo(const SheetOffset(0.5));
+        _scrollToSelectedItem();
+      });
+
+      overlays.add(marker);
     }
 
     _naverMapController.clearOverlays();
     _naverMapController.addOverlayAll(overlays.toSet());
+  }
+
+  void _scrollToSelectedItem() {
+    if (selectedMarkerIndex == null) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        // 바텀 시트를 50% 위치로 이동
+        _sheetController.animateTo(const SheetOffset(0.5)).then((_) {
+          // 바텀 시트 이동이 완료된 후 스크롤 위치 조정
+          Future.delayed(const Duration(milliseconds: 100), () {
+            final context =
+                _scrollController.position.context.notificationContext!;
+            final position = _MySheet(
+              items: _mapController.nearbyPoiItems,
+              controller: _sheetController,
+              scrollController: _scrollController,
+              selectedIndex: selectedMarkerIndex,
+            )._calculateItemPosition(context, selectedMarkerIndex!);
+
+            // 스크롤 위치 조정
+            _scrollController
+                .animateTo(
+                  position,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                )
+                .then((_) {
+                  // 애니메이션 실행
+                  setState(() {
+                    final currentIndex = selectedMarkerIndex;
+                    selectedMarkerIndex = null;
+                    Future.delayed(const Duration(milliseconds: 50), () {
+                      if (mounted) {
+                        setState(() {
+                          selectedMarkerIndex = currentIndex;
+                        });
+                      }
+                    });
+                  });
+                });
+          });
+        });
+      }
+    });
   }
 
   Future<void> _getPoiItemsAndUpdateMarkers({
@@ -362,6 +418,8 @@ class _MapScreenState extends State<MapScreen> {
                   child: _MySheet(
                     items: _mapController.nearbyPoiItems,
                     controller: _sheetController,
+                    scrollController: _scrollController,
+                    selectedIndex: selectedMarkerIndex,
                   ),
                 ),
               ],
@@ -382,14 +440,43 @@ Future<bool> requestGeolocationPermission() async {
 class _MySheet extends StatelessWidget {
   final List<PoiItem> items;
   final SheetController controller;
+  final ScrollController scrollController;
+  final int? selectedIndex;
 
-  const _MySheet({required this.items, required this.controller});
+  const _MySheet({
+    required this.items,
+    required this.controller,
+    required this.scrollController,
+    this.selectedIndex,
+  });
+
+  // 아이템의 실제 위치를 계산하는 메서드 수정
+  double _calculateItemPosition(BuildContext context, int index) {
+    // 각 아이템의 기본 높이 (패딩 포함)
+    const double itemHeight = 130.0; // 기본 높이
+    const double handleHeight = 46.0; // 바텀 시트 핸들 높이
+
+    // 선택된 아이템의 위치 계산
+    double position = index * itemHeight;
+
+    // 바텀 시트의 현재 높이 계산 (50% 위치 기준)
+    final screenHeight = MediaQuery.of(context).size.height;
+    final bottomSheetHeight = screenHeight * 0.5; // 50% 위치의 높이
+    final searchBarHeight = 80.0;
+
+    // 아이템이 바텀 시트의 중앙에 오도록 조정
+    // 바텀 시트의 핸들 높이를 고려하여 위치 조정
+    position =
+        position - (bottomSheetHeight / 2) + handleHeight + searchBarHeight;
+
+    return position;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final ScrollController scrollController = ScrollController();
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final minOffset = SheetOffset.absolute(56 + bottomPadding);
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Sheet(
       controller: controller,
@@ -402,6 +489,7 @@ class _MySheet extends StatelessWidget {
         elevation: 4,
       ),
       snapGrid: SheetSnapGrid(
+        // snaps: [minOffset, const SheetOffset(0.5), const SheetOffset(0.83)],
         snaps: [minOffset, const SheetOffset(0.5), const SheetOffset(0.83)],
       ),
       scrollConfiguration: const SheetScrollConfiguration(),
@@ -411,10 +499,14 @@ class _MySheet extends StatelessWidget {
             controller: scrollController,
             padding: EdgeInsets.only(
               top: const _ContentSheetHandle().preferredSize.height,
+              bottom: screenHeight * 0.5, // 바텀시트가 50% 위치일 때의 높이만큼 패딩 추가
             ),
             itemCount: items.length,
             itemBuilder: (context, index) {
-              return PoiListItem(item: items[index]);
+              return PoiListItem(
+                item: items[index],
+                isSelected: index == selectedIndex,
+              );
             },
           ),
           GestureDetector(
