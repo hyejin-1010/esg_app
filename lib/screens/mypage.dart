@@ -1,3 +1,4 @@
+import 'package:esg_app/controllers/auth.dart';
 import 'package:flutter/material.dart';
 import 'upcycling_shop_screen.dart';
 import 'post_detail_screen.dart';
@@ -138,7 +139,11 @@ class _MyPageScreenState extends State<MyPageScreen>
                           ),
                           GestureDetector(
                             onTap: () {
-                              // TODO: 로그아웃 기능 구현
+                              Get.find<AuthController>().authLogout().then((
+                                value,
+                              ) {
+                                if (value) Get.offAllNamed('/start');
+                              });
                             },
                             child: Text(
                               '로그아웃',
