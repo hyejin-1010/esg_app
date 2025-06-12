@@ -2,7 +2,7 @@ class Feed {
   final int? id;
   final String content;
   int userId;
-  final String userName;
+  final String? userName;
   final String createdAt;
   final String updatedAt;
   final List<String> imagePathList; // 이미지 Path List
@@ -14,7 +14,7 @@ class Feed {
     this.id,
     required this.content,
     required this.userId,
-    required this.userName,
+    this.userName,
     String? createdAt,
     String? updatedAt,
     List<String>? imagePathList,
@@ -46,7 +46,6 @@ class Feed {
     return {
       'content': content,
       'user_id': userId,
-      'user_name': userName,
       'created_at': createdAt,
       'updated_at': updatedAt,
       'image_path_list': imagePathList.join(

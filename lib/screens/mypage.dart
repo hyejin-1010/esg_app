@@ -217,7 +217,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                               builder:
                                   (context) => PostDetailScreen(
                                     imageUrls: feed.imagePathList,
-                                    nickname: feed.userName,
+                                    nickname: feed.userName ?? '',
                                     date: feed.createdAt,
                                     content: feed.content,
                                   ),

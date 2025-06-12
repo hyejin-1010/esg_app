@@ -91,6 +91,12 @@ class AuthController extends GetxController {
     return isDuplicateNickname;
   }
 
+  Future<bool> authCheckDuplicateEmail({required String email}) async {
+    AuthDao authDao = AuthDao();
+    final isDuplicateEmail = await authDao.checkDuplicateEmail(email);
+    return isDuplicateEmail;
+  }
+
   get user => _user;
   get userId => _user?.id;
 }

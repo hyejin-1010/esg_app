@@ -90,12 +90,9 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
       }
     }
 
-    final userName = '사용자'; // TODO: 나의 이름 가져오기
-
     final newFeed = Feed(
       content: _contentController.text,
       userId: authController.userId,
-      userName: userName,
       missionId: missionId,
       imagePathList: paths,
     );

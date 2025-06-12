@@ -17,6 +17,20 @@ class AuthDao {
     return res.isNotEmpty;
   }
 
+  // 같은 이메일이 있으면 true, 없으면 false
+  Future<bool> checkDuplicateEmail(String email) async {
+    final db = await DBHelper.database;
+    final res = await db.rawQuery(
+      '''
+      SELECT email
+      FROM Auth
+      WHERE email = ?
+    ''',
+      [email],
+    );
+    return res.isNotEmpty;
+  }
+
   // 같은 유저가 있으면 true, 없으면 false
   Future<bool> checkDuplicateUser(String email) async {
     final db = await DBHelper.database;
