@@ -31,6 +31,7 @@ class _MapScreenState extends State<MapScreen> {
   Timer? _debounceTimer;
   bool showSearchButton = false;
   bool isMapReady = false;
+  bool isDevCameraChange = false;
   int? selectedMarkerIndex;
   final ScrollController _scrollController = ScrollController();
 
@@ -88,6 +89,10 @@ class _MapScreenState extends State<MapScreen> {
       zoom: _defaultZoom,
     );
     _naverMapController.updateCamera(cameraUpdate);
+
+    setState(() {
+      isDevCameraChange = true;
+    });
   }
 
   // 마커 업데이트
@@ -204,6 +209,7 @@ class _MapScreenState extends State<MapScreen> {
 
           setState(() {
             isMapReady = true;
+            isDevCameraChange = true;
             showSearchButton = false;
           });
         })
@@ -216,11 +222,18 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _onCameraIdle() async {
     if (!isMapReady) return;
 
+    log('isDevCameraChange: $isDevCameraChange');
+
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 200), () {
-      log('onCameraIdle');
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       setState(() {
-        showSearchButton = true;
+        if (isDevCameraChange) {
+          showSearchButton = false;
+        } else {
+          showSearchButton = true;
+        }
+
+        isDevCameraChange = false;
       });
     });
   }
@@ -255,6 +268,7 @@ class _MapScreenState extends State<MapScreen> {
     _moveCameraToMyLocation(position);
 
     setState(() {
+      isDevCameraChange = true;
       showSearchButton = false;
     });
   }
@@ -278,6 +292,8 @@ class _MapScreenState extends State<MapScreen> {
       } else {
         selectedCategoryId = categoryId;
       }
+
+      showSearchButton = false;
     });
   }
 
@@ -295,9 +311,36 @@ class _MapScreenState extends State<MapScreen> {
               bottom: 20,
             ),
             child: SearchBox(
-              onChanged: (value) {
-                // TODO: 검색 기능 구현
-                print('검색어: $value');
+              onChanged: (value) {},
+              onSubmitted: (value) async {
+                final cameraPosition =
+                    await _naverMapController.getCameraPosition();
+                await _mapController.searchPoiItems(
+                  query: value,
+                  lat: cameraPosition.target.latitude,
+                  lng: cameraPosition.target.longitude,
+                  zoom: cameraPosition.zoom,
+                );
+                await _updateMapMarkers();
+
+                // 검색 결과가 있으면 검색 결과 중심으로 카메라 이동
+                if (_mapController.nearbyPoiItems.isNotEmpty) {
+                  final latLngs =
+                      _mapController.nearbyPoiItems
+                          .map((e) => NLatLng(e.lat, e.lng))
+                          .toList();
+                  final bounds = NLatLngBounds.from(latLngs);
+                  final cameraUpdate = NCameraUpdate.fitBounds(
+                    bounds,
+                    padding: const EdgeInsets.all(50),
+                  );
+                  _naverMapController.updateCamera(cameraUpdate);
+
+                  setState(() {
+                    selectedCategoryId = null;
+                    isDevCameraChange = true;
+                  });
+                }
               },
             ),
           ),

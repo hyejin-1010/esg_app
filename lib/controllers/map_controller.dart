@@ -208,6 +208,30 @@ class MapController extends GetxController {
     await updateNearbyPoiItemsByPosition(lat, lng, zoom: zoom);
   }
 
+  Future<void> searchPoiItems({
+    required String query,
+    required double lat,
+    required double lng,
+    double? zoom,
+  }) async {
+    selectedCategoryId = null;
+
+    if (query.isEmpty) {
+      // 검색어가 비어있으면 현재 위치 기준으로 다시 로드
+      await updateNearbyPoiItems(lat: lat, lng: lng, zoom: zoom);
+      return;
+    }
+
+    // 검색어가 포함된 아이템만 필터링
+    nearbyPoiItems =
+        poiItems
+            .where(
+              (item) => item.title.toLowerCase().contains(query.toLowerCase()),
+            )
+            .toList();
+    update();
+  }
+
   // Future<void> loadPoiCategories() async {
   //   poiCategories.value = [
   //     PoiCategory(id: 1, name: '카페'),
