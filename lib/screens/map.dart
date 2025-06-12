@@ -254,23 +254,49 @@ class _MapScreenState extends State<MapScreen> {
 
   // 내 위치로 이동 버튼 클릭
   Future<void> _onMyLocationButtonPressed() async {
-    // 현재 내 위치 가져오기
-    final position = await Geolocator.getCurrentPosition();
+    try {
+      // 현재 내 위치 가져오기
+      final position = await Geolocator.getCurrentPosition();
 
-    // 내 위치 주변 아이템 업데이트
-    await _getPoiItemsAndUpdateMarkers(
-      lat: position.latitude,
-      lng: position.longitude,
-      zoom: _defaultZoom,
-    );
+      // 내 위치 주변 아이템 업데이트
+      await _getPoiItemsAndUpdateMarkers(
+        lat: position.latitude,
+        lng: position.longitude,
+        zoom: _defaultZoom,
+      );
 
-    // 내 위치로 카메라 이동
-    _moveCameraToMyLocation(position);
+      // 내 위치로 카메라 이동
+      _moveCameraToMyLocation(position);
 
-    setState(() {
-      isDevCameraChange = true;
-      showSearchButton = false;
-    });
+      setState(() {
+        isDevCameraChange = true;
+        showSearchButton = false;
+      });
+    } catch (error) {
+      // 내 위치 권한 거부 된 경우 앱 설정으로 이동
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.deniedForever ||
+          permission == LocationPermission.denied) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('내 위치 권한 거부'),
+                content: const Text('내 위치 권한을 허용해주세요.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Geolocator.openAppSettings(),
+                    child: const Text('설정으로 이동'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('취소'),
+                  ),
+                ],
+              ),
+        );
+      }
+    }
   }
 
   // 카테고리 선택
