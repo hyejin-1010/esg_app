@@ -1,18 +1,21 @@
 import 'dart:convert';
 
 class AuthUser {
+  final int? id;
   final String nickname;
   final String email;
-  final String password;
+  final String? password;
 
   AuthUser({
+    this.id,
     required this.nickname,
     required this.email,
-    required this.password,
+    this.password,
   });
 
   factory AuthUser.fromJson(Map<String, dynamic> json) {
     return AuthUser(
+      id: json['id'],
       nickname: json['nickname'],
       email: json['email'],
       password: json['password'],
@@ -20,6 +23,7 @@ class AuthUser {
   }
 
   static Map<String, dynamic> toMap(AuthUser model) => <String, dynamic>{
+    'id': model.id,
     'nickname': model.nickname,
     'email': model.email,
     'password': model.password,
@@ -29,30 +33,4 @@ class AuthUser {
 
   static AuthUser deserialize(String json) =>
       AuthUser.fromJson(jsonDecode(json));
-}
-
-class User {
-  final int userId;
-  final String nickname;
-  final String email;
-
-  User({required this.userId, required this.nickname, required this.email});
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      userId: json['userId'],
-      nickname: json['nickname'],
-      email: json['email'],
-    );
-  }
-
-  static Map<String, dynamic> toMap(User model) => <String, dynamic>{
-    'userId': model.userId,
-    'nickname': model.nickname,
-    'email': model.email,
-  };
-
-  static String serialize(User model) => json.encode(User.toMap(model));
-
-  static User deserialize(String json) => User.fromJson(jsonDecode(json));
 }

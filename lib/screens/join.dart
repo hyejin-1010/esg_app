@@ -14,9 +14,9 @@ class JoinScreen extends StatefulWidget {
 }
 
 class _JoinScreenState extends State<JoinScreen> {
-  String nickname = '';
   String email = '';
   String password = '';
+  String? emailErrorText;
   String? nicknameErrorText;
   bool isNotDuplicate = false;
   bool isLoading = false;
@@ -25,13 +25,8 @@ class _JoinScreenState extends State<JoinScreen> {
 
   final getxController = Get.put(AuthController());
 
-  void onChangedNickname(String? text) {
-    setState(() {
-      nickname = text ?? '';
-    });
-  }
-
   void onChangedEmail(String? text) {
+    isNotDuplicate = false;
     setState(() {
       email = text ?? '';
     });
@@ -45,21 +40,20 @@ class _JoinScreenState extends State<JoinScreen> {
 
   // 실제 서버가 없으니 랜덤으로 중복 체크
   Future<void> checkDuplicateNickname() async {
-    String? errorText = UtilValidators.nickname(nickname);
-
-    final isDuplicateNickname = await getxController.authCheckDuplicateNickname(
-      nickname: nickname,
+    String? errorText = UtilValidators.email(email);
+    final isDuplicateEmail = await getxController.authCheckDuplicateEmail(
+      email: email,
     );
 
-    if (isDuplicateNickname && errorText == null) {
+    if (isDuplicateEmail && errorText == null) {
       setState(() {
-        nicknameErrorText = '이미 사용중인 아이디입니다.';
+        emailErrorText = '이미 사용중인 이메일입니다.';
         isNotDuplicate = false;
       });
     } else if (errorText == null) {
       // 성공
       setState(() {
-        nicknameErrorText = errorText;
+        emailErrorText = null;
         isNotDuplicate = true;
       });
     } else {
@@ -80,6 +74,7 @@ class _JoinScreenState extends State<JoinScreen> {
       });
 
       if (_formKey.currentState!.validate()) {
+        final nickname = email.split('@')[0];
         // 회원가입
         await getxController.authJoin(
           nickname: nickname,
@@ -88,7 +83,7 @@ class _JoinScreenState extends State<JoinScreen> {
         );
 
         // 회원가입 성공 후 홈 화면으로 이동
-        Get.toNamed('/home');
+        Get.offAndToNamed('/home');
       }
 
       setState(() {
@@ -131,12 +126,13 @@ class _JoinScreenState extends State<JoinScreen> {
                           children: [
                             material.Flexible(
                               child: CustomTextFormField(
-                                label: '아이디',
-                                icon: Icons.person,
-                                enabled: !isNotDuplicate,
-                                errorText: nicknameErrorText,
-                                validator: UtilValidators.nickname,
-                                onChanged: onChangedNickname,
+                                label: '이메일',
+                                icon: Icons.email,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: UtilValidators.email,
+                                onChanged: onChangedEmail,
+                                onFieldSubmitted: onSubmit,
+                                errorText: emailErrorText,
                               ),
                             ),
                             Gap(8),
@@ -174,14 +170,7 @@ class _JoinScreenState extends State<JoinScreen> {
                           obscureText: true,
                         ),
                         Gap(20),
-                        CustomTextFormField(
-                          label: '이메일',
-                          icon: Icons.email,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: UtilValidators.email,
-                          onChanged: onChangedEmail,
-                          onFieldSubmitted: onSubmit,
-                        ),
+
                         Gap(40),
                         SizedBox(
                           width: MediaQuery.of(context).size.width - 40,

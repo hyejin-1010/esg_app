@@ -17,6 +17,20 @@ class AuthDao {
     return res.isNotEmpty;
   }
 
+  // 같은 이메일이 있으면 true, 없으면 false
+  Future<bool> checkDuplicateEmail(String email) async {
+    final db = await DBHelper.database;
+    final res = await db.rawQuery(
+      '''
+      SELECT email
+      FROM Auth
+      WHERE email = ?
+    ''',
+      [email],
+    );
+    return res.isNotEmpty;
+  }
+
   // 같은 유저가 있으면 true, 없으면 false
   Future<bool> checkDuplicateUser(String email) async {
     final db = await DBHelper.database;
@@ -34,5 +48,17 @@ class AuthDao {
   Future<int> insertUser(AuthUser user) async {
     final db = await DBHelper.database;
     return await db.insert('Auth', AuthUser.toMap(user));
+  }
+
+  Future<AuthUser?> login(String email, String password) async {
+    final db = await DBHelper.database;
+    final res = await db.rawQuery(
+      '''
+      SELECT * FROM Auth WHERE email = ? AND password = ?
+    ''',
+      [email, password],
+    );
+    if (res.isNotEmpty) return AuthUser.fromJson(res.first);
+    return null;
   }
 }

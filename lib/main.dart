@@ -1,3 +1,4 @@
+import 'package:esg_app/controllers/auth.dart';
 import 'package:esg_app/controllers/find_controller.dart';
 import 'package:esg_app/controllers/mission_controller.dart';
 import 'package:esg_app/screens/home.dart';
@@ -28,6 +29,9 @@ void main() async {
 
   // .env 파일 로드
   await dotenv.load(fileName: ".env");
+
+  final authController = Get.put(AuthController());
+  await authController.init();
 
   await FlutterNaverMap().init(
     clientId: dotenv.get('NAVER_CLIENT_ID'),

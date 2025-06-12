@@ -1,8 +1,8 @@
+import 'package:esg_app/controllers/auth.dart';
+import 'package:esg_app/models/auth.dart';
 import 'package:esg_app/models/feed_model.dart';
 import 'package:esg_app/models/mission_model.dart';
 import '../db/model_plant_item.dart';
-import '../db/model_plant_item_dao.dart';
-import '../db/model_purchase_history.dart';
 import 'package:esg_app/models/store_model.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -35,7 +35,6 @@ class DBHelper {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             content TEXT,
             user_id INTEGER,
-            user_name TEXT,
             created_at TEXT,
             updated_at TEXT,
             image_path_list TEXT,
@@ -98,6 +97,16 @@ class DBHelper {
             iconDescription TEXT
           )
         ''');
+
+        // 초기 유저 데이터 삽입
+        final authUserCount = Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM Auth'),
+        );
+        if (authUserCount == 0) {
+          for (var authUser in mockupAuthUserData) {
+            await db.insert('Auth', AuthUser.toMap(authUser));
+          }
+        }
 
         // 초기 식물 데이터 삽입
         final plantCount = Sqflite.firstIntValue(
@@ -309,7 +318,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #플로깅 #정크아트 #지구를지키는작은실천 #환경보호 #탄소중립 #쓰레기도예술이된다''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -326,7 +334,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #비치코밍 #해양쓰레기수거 #환경보호''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -343,7 +350,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #텀블러사용하기 #탄소중립 #환경보호''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -358,7 +364,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #분리수거하기 #환경보호 #지구를위한작은실천''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -373,7 +378,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #식물키우기 #환경보호''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -388,7 +392,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #만보걷기''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -403,7 +406,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #채식한끼 #크럼블두부''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -417,7 +419,6 @@ List<Feed> mockupFeedData = [
 하나하나 정성껏 만든 세상에 하나뿐인 그립톡!
 예쁘게 포장해서 친구들에게 선물할 예정이에요 :)''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -500,6 +501,15 @@ List<Store> mockupStoreData = [
     thumbnail: 'find5.png',
     imageList: ['find5_1.png', 'find5_2.png', 'find5_3.png', 'find5_4.png'],
     link: 'https://naver.me/xdp3ZEGT',
+  ),
+];
+
+// 초기 유저 데이터
+List<AuthUser> mockupAuthUserData = [
+  AuthUser(
+    nickname: 'sunny',
+    email: 'sunny@example.com',
+    password: hashPassword('12341234'),
   ),
 ];
 

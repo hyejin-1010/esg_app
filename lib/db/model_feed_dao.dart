@@ -10,9 +10,11 @@ class FeedDao {
     final res = await db.rawQuery(
       '''
       SELECT f.*, 
+        au.nickname as user_name,
         CASE WHEN fav.user_id IS NOT NULL THEN 1 ELSE 0 END as is_favorite,
         (SELECT COUNT(*) FROM Favorite WHERE feed_id = f.id) as favorite_count
       FROM Feed f
+      LEFT JOIN Auth au ON f.user_id = au.id
       LEFT JOIN Favorite fav ON f.id = fav.feed_id AND fav.user_id = ?
       ORDER BY f.created_at DESC
     ''',

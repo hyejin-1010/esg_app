@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Image.asset('assets/icon/footer/ic_my.png', width: 20.0),
             activeIcon: Image.asset(
-              'assets/icon/footer/ic_my.png',
+              'assets/icon/footer/ic_my_active.png',
               width: 20.0,
             ),
             label: '마이페이지',
