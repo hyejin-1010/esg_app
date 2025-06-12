@@ -35,7 +35,6 @@ class DBHelper {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             content TEXT,
             user_id INTEGER,
-            user_name TEXT,
             created_at TEXT,
             updated_at TEXT,
             image_path_list TEXT,
@@ -319,7 +318,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #플로깅 #정크아트 #지구를지키는작은실천 #환경보호 #탄소중립 #쓰레기도예술이된다''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -336,7 +334,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #비치코밍 #해양쓰레기수거 #환경보호''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -353,7 +350,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #텀블러사용하기 #탄소중립 #환경보호''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -368,7 +364,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #분리수거하기 #환경보호 #지구를위한작은실천''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -383,7 +378,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #식물키우기 #환경보호''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -398,7 +392,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #만보걷기''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -413,7 +406,6 @@ List<Feed> mockupFeedData = [
 
 #그린지구 #채식한끼 #크럼블두부''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -427,7 +419,6 @@ List<Feed> mockupFeedData = [
 하나하나 정성껏 만든 세상에 하나뿐인 그립톡!
 예쁘게 포장해서 친구들에게 선물할 예정이에요 :)''',
     userId: 1,
-    userName: '사용자',
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [

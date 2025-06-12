@@ -72,11 +72,29 @@ class AuthController extends GetxController {
     });
   }
 
+  Future<bool> authLogout() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.remove('user');
+      _user = null;
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return false;
+  }
+
   Future<bool> authCheckDuplicateNickname({required String nickname}) async {
     AuthDao authDao = AuthDao();
     final isDuplicateNickname = await authDao.checkDuplicateNickname(nickname);
 
     return isDuplicateNickname;
+  }
+
+  Future<bool> authCheckDuplicateEmail({required String email}) async {
+    AuthDao authDao = AuthDao();
+    final isDuplicateEmail = await authDao.checkDuplicateEmail(email);
+    return isDuplicateEmail;
   }
 
   get user => _user;

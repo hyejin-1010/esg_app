@@ -52,7 +52,7 @@ class _FeedItemState extends State<FeedItem> {
               ),
               const SizedBox(width: 4.0),
               Text(
-                widget.feed.userName,
+                widget.feed.userName ?? '',
                 style: Theme.of(
                   context,
                 ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900),
