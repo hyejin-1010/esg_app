@@ -123,7 +123,7 @@ class MyApp extends StatelessWidget {
           bodySmall: material.TextStyle(fontSize: 12.0),
         ),
       ),
-      initialRoute: '/home',
+      initialRoute: '/start',
       getPages: [
         GetPage(name: '/start', page: () => const StartScreen()),
         GetPage(name: '/login', page: () => const LoginScreen()),
