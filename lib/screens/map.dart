@@ -195,7 +195,6 @@ class _MapScreenState extends State<MapScreen> {
             // 내 위치로 카메라 이동
             _moveCameraToMyLocation(position);
 
-            log('position: $position');
             await _getPoiItemsAndUpdateMarkers(
               lat: position.latitude,
               lng: position.longitude,
@@ -260,6 +259,28 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  // 카테고리 선택
+  Future<void> _onCategoryTap(bool isSelected, int categoryId) async {
+    final cameraPosition = await _naverMapController.getCameraPosition();
+
+    await _mapController.filterCategory(
+      categoryId: selectedCategoryId == categoryId ? null : categoryId,
+      lat: cameraPosition.target.latitude,
+      lng: cameraPosition.target.longitude,
+      zoom: cameraPosition.zoom,
+    );
+
+    await _updateMapMarkers();
+
+    setState(() {
+      if (isSelected) {
+        selectedCategoryId = null;
+      } else {
+        selectedCategoryId = categoryId;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -306,15 +327,8 @@ class _MapScreenState extends State<MapScreen> {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (isSelected) {
-                                  selectedCategoryId = null;
-                                } else {
-                                  selectedCategoryId = category.id;
-                                }
-                              });
-                            },
+                            onTap:
+                                () => _onCategoryTap(isSelected, category.id),
                             child: Chip(
                               label: Text(
                                 category.name,

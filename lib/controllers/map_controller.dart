@@ -12,6 +12,7 @@ class MapController extends GetxController {
   final poiCategories = <PoiCategory>[].obs;
   List<PoiItem> poiItems = [];
   List<PoiItem> nearbyPoiItems = <PoiItem>[].obs;
+  int? selectedCategoryId;
 
   @override
   void onInit() {
@@ -117,12 +118,63 @@ class MapController extends GetxController {
     }
   }
 
+  Future<void> filterCategory({
+    required int? categoryId,
+    required double lat,
+    required double lng,
+    double? zoom,
+  }) async {
+    if (categoryId == null) {
+      final distance = _getDistanceByZoom(zoom ?? 11.0);
+
+      final filteredItems =
+          poiItems.where((item) {
+            final itemDistance = Geolocator.distanceBetween(
+              lat,
+              lng,
+              item.lat,
+              item.lng,
+            );
+            return itemDistance <= distance;
+          }).toList();
+
+      filteredItems.shuffle();
+      nearbyPoiItems = filteredItems.take(100).toList();
+      update();
+    } else {
+      final distance = _getDistanceByZoom(zoom ?? 11.0);
+      final categoryName =
+          poiCategories.firstWhere((c) => c.id == categoryId).name;
+
+      final filteredItems =
+          poiItems.where((item) {
+            final itemDistance = Geolocator.distanceBetween(
+              lat,
+              lng,
+              item.lat,
+              item.lng,
+            );
+            return itemDistance <= distance && item.category == categoryName;
+          }).toList();
+
+      nearbyPoiItems = filteredItems.toList();
+      selectedCategoryId = categoryId;
+      update();
+    }
+  }
+
   Future<void> updateNearbyPoiItemsByPosition(
     double lat,
     double lng, {
     double? zoom,
   }) async {
     final distance = _getDistanceByZoom(zoom ?? 11.0);
+
+    final categoryName =
+        selectedCategoryId != null
+            ? poiCategories.firstWhere((c) => c.id == selectedCategoryId).name
+            : null;
+
     final filteredItems =
         poiItems.where((item) {
           final itemDistance = Geolocator.distanceBetween(
@@ -131,14 +183,13 @@ class MapController extends GetxController {
             item.lat,
             item.lng,
           );
-          return itemDistance <= distance;
+          return categoryName != null
+              ? itemDistance <= distance && item.category == categoryName
+              : itemDistance <= distance;
         }).toList();
 
     filteredItems.shuffle();
     nearbyPoiItems = filteredItems.take(100).toList();
-
-    log('filteredItems: ${filteredItems.length}');
-    log('nearbyPoiItems: ${nearbyPoiItems.length}');
     update();
   }
 
