@@ -1,6 +1,7 @@
 import 'package:esg_app/controllers/auth.dart';
 import 'package:esg_app/controllers/find_controller.dart';
 import 'package:esg_app/controllers/mission_controller.dart';
+import 'package:esg_app/controllers/map_controller.dart';
 import 'package:esg_app/screens/home.dart';
 import 'package:esg_app/screens/login.dart';
 import 'package:esg_app/screens/map.dart';
@@ -55,6 +56,7 @@ void main() async {
   Get.put(FeedController());
   Get.put(MissionController());
   Get.put(FindController());
+  Get.put(MapController());
 
   try {
     await Supabase.initialize(
@@ -121,7 +123,7 @@ class MyApp extends StatelessWidget {
           bodySmall: material.TextStyle(fontSize: 12.0),
         ),
       ),
-      initialRoute: '/start',
+      initialRoute: '/home',
       getPages: [
         GetPage(name: '/start', page: () => const StartScreen()),
         GetPage(name: '/login', page: () => const LoginScreen()),
