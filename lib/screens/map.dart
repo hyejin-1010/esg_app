@@ -26,13 +26,18 @@ class _MapScreenState extends State<MapScreen> {
   late final NaverMapController _naverMapController;
   late final SheetController _sheetController;
   static const _defaultZoom = 14.0;
+  // 기본 위치: 서울특별시청
+  static const NLatLng _defaultCameraPosition = NLatLng(
+    37.5666102,
+    126.9783881,
+  );
 
-  int? selectedCategoryId;
   Timer? _debounceTimer;
+  int? selectedMarkerIndex;
+  int? selectedCategoryId;
   bool showSearchButton = false;
   bool isMapReady = false;
   bool isDevCameraChange = false;
-  int? selectedMarkerIndex;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -203,6 +208,13 @@ class _MapScreenState extends State<MapScreen> {
             await _getPoiItemsAndUpdateMarkers(
               lat: position.latitude,
               lng: position.longitude,
+              zoom: _defaultZoom,
+            );
+          } else {
+            // 내 위치 권한 거부 된 경우 기본 위치로 이동
+            await _getPoiItemsAndUpdateMarkers(
+              lat: _defaultCameraPosition.latitude,
+              lng: _defaultCameraPosition.longitude,
               zoom: _defaultZoom,
             );
           }
