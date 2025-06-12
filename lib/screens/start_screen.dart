@@ -1,6 +1,7 @@
-import 'package:get/route_manager.dart';
+import 'package:esg_app/controllers/auth.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:gif/gif.dart';
+import 'package:get/get.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -11,6 +12,17 @@ class StartScreen extends StatefulWidget {
 
 class _StartScreenState extends State<StartScreen>
     with TickerProviderStateMixin {
+  final authController = Get.find<AuthController>();
+
+  @override
+  void initState() {
+    super.initState();
+    authController.init().then((value) {
+      print('heidi test user id ${authController.userId}');
+      if (authController.userId != null) Get.offAndToNamed('/home');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;

@@ -39,23 +39,19 @@ class _LoginScreenState extends State<LoginScreen> {
     if (isLoading) return;
 
     try {
-      setState(() {
-        isLoading = true;
-      });
+      setState(() => (isLoading = true));
 
       if (_formKey.currentState!.validate()) {
-        // 회원가입
+        // 로그인
         await getxController.authLogin(email: email, password: password);
 
-        // 회원가입 성공 후 홈 화면으로 이동
-        Get.toNamed('/home');
+        // 로그인 성공 후 홈 화면으로 이동
+        Get.offAndToNamed('/home');
       }
     } catch (error) {
       errorText = error.toString().replaceFirst('Exception: ', '');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => (isLoading = false));
     }
   }
 

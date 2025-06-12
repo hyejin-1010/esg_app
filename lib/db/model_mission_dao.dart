@@ -8,7 +8,7 @@ class MissionDao {
     return res.map((e) => Mission.fromMap(e)).toList();
   }
 
-  Future<List<Mission>> getAvailableMissions(int userId) async {
+  Future<List<Mission>> getAvailableMissions(int? userId) async {
     final db = await DBHelper.database;
     final res = await db.rawQuery(
       '''
@@ -18,7 +18,7 @@ class MissionDao {
         WHERE f.user_id = ?
       )
     ''',
-      [userId],
+      [userId ?? 0],
     );
     return res.map((e) => Mission.fromMap(e)).toList();
   }
