@@ -61,4 +61,26 @@ class AuthDao {
     if (res.isNotEmpty) return AuthUser.fromJson(res.first);
     return null;
   }
+
+  Future<String?> getNicknameByUserId(int userId) async {
+    final db = await DBHelper.database;
+    final res = await db.rawQuery(
+      '''
+      SELECT nickname FROM Auth WHERE id = ?
+    ''',
+      [userId],
+    );
+    if (res.isNotEmpty) return res.first['nickname'] as String;
+    return null;
+  }
+
+  Future<void> updateNickname(String email, String newNickname) async {
+    final db = await DBHelper.database;
+    await db.update(
+      'Auth',
+      {'nickname': newNickname},
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+  }
 }

@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:esg_app/db/db_helper.dart';
 import 'package:esg_app/db/model_purchase_history.dart';
+import 'package:esg_app/db/model_auth_dao.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/number_symbols_data.dart';
 import 'package:esg_app/controllers/feed_controller.dart';
@@ -24,10 +25,12 @@ class MyPageScreen extends StatefulWidget {
 class _MyPageScreenState extends State<MyPageScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String _nickname = '닉네임을 변경하세요!';
+  String? _nickname;
   File? _profileImage;
   List<Map<String, dynamic>> _purchaseHistory = [];
   final FeedController _feedController = Get.find<FeedController>();
+  final AuthController _authController = Get.find<AuthController>();
+  final AuthDao _authDao = AuthDao();
 
   @override
   void initState() {
@@ -39,6 +42,19 @@ class _MyPageScreenState extends State<MyPageScreen>
     );
     _loadPurchaseHistory();
     _loadUserPosts();
+    _loadNickname();
+  }
+
+  Future<void> _loadNickname() async {
+    final userId = _authController.userId;
+    if (userId == null) return;
+    
+    final dbNickname = await _authDao.getNicknameByUserId(userId);
+    final defaultNickname = _authController.user.email.split('@').first;
+    
+    setState(() {
+      _nickname = dbNickname ?? defaultNickname;
+    });
   }
 
   Future<void> _loadUserPosts() async {
@@ -109,7 +125,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                         children: [
                           Expanded(
                             child: Text(
-                              _nickname,
+                              _nickname ?? '',
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -131,7 +147,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'heejin@example.com',
+                            _authController.user.email,
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 16,
@@ -139,9 +155,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                           ),
                           GestureDetector(
                             onTap: () {
-                              Get.find<AuthController>().authLogout().then((
-                                value,
-                              ) {
+                              _authController.authLogout().then((value) {
                                 if (value) Get.offAllNamed('/start');
                               });
                             },
@@ -260,33 +274,36 @@ class _MyPageScreenState extends State<MyPageScreen>
 
   void _editNickname() {
     final controller = TextEditingController(text: _nickname);
-
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('변경할 별명을 입력하세요'),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(hintText: "새 별명 입력"),
+      builder: (context) => AlertDialog(
+        title: const Text('닉네임 변경'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: '새 닉네임 입력'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('취소'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _nickname = controller.text;
-                });
+          TextButton(
+            onPressed: () async {
+              final newNickname = controller.text.trim();
+              try {
+                await _authDao.updateNickname(_authController.user.email, newNickname);
+                await _loadNickname(); // 닉네임 다시 로드
                 Navigator.pop(context);
-              },
-              child: Text('저장'),
-            ),
-          ],
-        );
-      },
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(e.toString())),
+                );
+              }
+            },
+            child: const Text('저장'),
+          ),
+        ],
+      ),
     );
   }
 
