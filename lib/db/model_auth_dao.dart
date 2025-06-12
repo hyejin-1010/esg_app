@@ -35,4 +35,16 @@ class AuthDao {
     final db = await DBHelper.database;
     return await db.insert('Auth', AuthUser.toMap(user));
   }
+
+  Future<AuthUser?> login(String email, String password) async {
+    final db = await DBHelper.database;
+    final res = await db.rawQuery(
+      '''
+      SELECT * FROM Auth WHERE email = ? AND password = ?
+    ''',
+      [email, password],
+    );
+    if (res.isNotEmpty) return AuthUser.fromJson(res.first);
+    return null;
+  }
 }

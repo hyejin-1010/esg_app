@@ -1,10 +1,11 @@
 import 'package:esg_app/db/model_auth_dao.dart';
 import 'package:esg_app/models/auth.dart';
 import 'package:get/get.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 String hashPassword(String password) {
   final bytes = utf8.encode(password); // 문자열 → 바이트
@@ -13,7 +14,17 @@ String hashPassword(String password) {
 }
 
 class AuthController extends GetxController {
-  late final User _user;
+  AuthUser? _user;
+
+  init() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final user = prefs.getString('user');
+      if (user != null) _user = AuthUser.deserialize(user);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 
   Future<void> authJoin({
     required String nickname,
@@ -38,8 +49,8 @@ class AuthController extends GetxController {
     }
     final newUserId = await authDao.insertUser(newUser);
 
-    _user = User(
-      userId: newUserId,
+    _user = AuthUser(
+      id: newUserId,
       nickname: newUser.nickname,
       email: newUser.email,
     );
@@ -52,23 +63,13 @@ class AuthController extends GetxController {
     required String email,
     required String password,
   }) async {
-    // 스토리지에 저장
-    final storage = const FlutterSecureStorage();
-    final storageUser = await storage.read(key: 'user');
-
-    if (storageUser != null) {
-      User deserializedUser = User.deserialize(storageUser);
-      if (deserializedUser.email == email) {
-        _user = deserializedUser;
-      } else {
-        throw Exception('존재하지 않는 유저입니다.');
-      }
-    } else {
-      throw Exception('존재하지 않는 유저입니다.');
-    }
-
-    // 2초 대기
-    await Future.delayed(const Duration(seconds: 2));
+    AuthDao authDao = AuthDao();
+    final user = await authDao.login(email, hashPassword(password));
+    if (user == null) throw Exception('존재하지 않는 유저입니다.');
+    _user = user;
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('user', AuthUser.serialize(_user!));
+    });
   }
 
   Future<bool> authCheckDuplicateNickname({required String nickname}) async {
@@ -79,5 +80,5 @@ class AuthController extends GetxController {
   }
 
   get user => _user;
-  get userId => _user.userId;
+  get userId => _user?.id;
 }

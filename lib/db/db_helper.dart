@@ -1,8 +1,8 @@
+import 'package:esg_app/controllers/auth.dart';
+import 'package:esg_app/models/auth.dart';
 import 'package:esg_app/models/feed_model.dart';
 import 'package:esg_app/models/mission_model.dart';
 import '../db/model_plant_item.dart';
-import '../db/model_plant_item_dao.dart';
-import '../db/model_purchase_history.dart';
 import 'package:esg_app/models/store_model.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -98,6 +98,16 @@ class DBHelper {
             iconDescription TEXT
           )
         ''');
+
+        // 초기 유저 데이터 삽입
+        final authUserCount = Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM Auth'),
+        );
+        if (authUserCount == 0) {
+          for (var authUser in mockupAuthUserData) {
+            await db.insert('Auth', AuthUser.toMap(authUser));
+          }
+        }
 
         // 초기 식물 데이터 삽입
         final plantCount = Sqflite.firstIntValue(
@@ -500,6 +510,15 @@ List<Store> mockupStoreData = [
     thumbnail: 'find5.png',
     imageList: ['find5_1.png', 'find5_2.png', 'find5_3.png', 'find5_4.png'],
     link: 'https://naver.me/xdp3ZEGT',
+  ),
+];
+
+// 초기 유저 데이터
+List<AuthUser> mockupAuthUserData = [
+  AuthUser(
+    nickname: 'sunny',
+    email: 'sunny@example.com',
+    password: hashPassword('12341234'),
   ),
 ];
 
