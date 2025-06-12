@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class SearchBox extends StatelessWidget {
-  const SearchBox({super.key, required this.onChanged});
+  const SearchBox({super.key, required this.onChanged, this.onSubmitted});
 
   final Function(String) onChanged;
+  final Function(String)? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +30,7 @@ class SearchBox extends StatelessWidget {
                 border: InputBorder.none,
               ),
               onChanged: onChanged,
+              onSubmitted: onSubmitted,
             ),
           ),
         ],

@@ -4,8 +4,6 @@ import 'package:esg_app/screens/map.dart';
 import 'package:esg_app/screens/mission.dart';
 import 'package:esg_app/screens/mypage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,16 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
-      FlutterNativeSplash.remove();
-
-      _onItemTapped(2);
     });
   }
 
