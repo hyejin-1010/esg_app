@@ -26,7 +26,8 @@ class DBHelper {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nickname TEXT,
             email TEXT,
-            password TEXT
+            password TEXT,
+            reward INTEGER DEFAULT 1000
           )
         ''');
 

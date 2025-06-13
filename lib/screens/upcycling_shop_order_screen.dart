@@ -4,6 +4,8 @@ import '../db/db_helper.dart';
 import '../db/model_purchase_history.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:esg_app/controllers/auth.dart';
+import 'package:esg_app/db/model_auth_dao.dart';
 
 class UpcyclingShopOrderScreen extends StatefulWidget {
   const UpcyclingShopOrderScreen({Key? key}) : super(key: key);
@@ -25,6 +27,10 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
   int? plantItemId;
   String? imageAsset;
 
+  final AuthController _authController = Get.find<AuthController>();
+  final AuthDao _authDao = AuthDao();
+  int _points = 0;  // 포인트 변수 추가
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +40,16 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
     price = arguments['price'];
     plantItemId = arguments['plantItemId'];
     imageAsset = arguments['imageAsset'];
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    if (_authController.user != null) {
+      final points = await _authDao.getReward(_authController.user!.id);
+      setState(() {
+        _points = points;
+      });
+    }
   }
 
   // 아이콘 파일 경로를 설명 문자열로 매핑하는 함수
@@ -168,12 +184,12 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
                   ),
                 ),
                 SizedBox(width: 8),
+                const Text('포인트'),
                 Text(
-                  '508P',
-                  style: TextStyle(
-                    color: Colors.black,
+                  '$_points P',  // 하드코딩된 값 대신 _points 사용
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    color: Colors.green,
                   ),
                 ),
               ],

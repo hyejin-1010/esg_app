@@ -31,6 +31,7 @@ class _MyPageScreenState extends State<MyPageScreen>
   final FeedController _feedController = Get.find<FeedController>();
   final AuthController _authController = Get.find<AuthController>();
   final AuthDao _authDao = AuthDao();
+  int _points = 0;
 
   @override
   void initState() {
@@ -43,6 +44,7 @@ class _MyPageScreenState extends State<MyPageScreen>
     _loadPurchaseHistory();
     _loadUserPosts();
     _loadNickname();
+    _loadUserData();
   }
 
   Future<void> _loadNickname() async {
@@ -68,6 +70,15 @@ class _MyPageScreenState extends State<MyPageScreen>
     setState(() {
       _purchaseHistory = history;
     });
+  }
+
+  Future<void> _loadUserData() async {
+    if (_authController.user != null) {
+      final points = await _authDao.getReward(_authController.user!.id);
+      setState(() {
+        _points = points;
+      });
+    }
   }
 
   @override
@@ -320,7 +331,7 @@ class _MyPageScreenState extends State<MyPageScreen>
               SizedBox(height: 4),
               Text("포인트", style: TextStyle(fontWeight: FontWeight.bold)),
               Text(
-                "100P",
+                "$_points P",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF34C759),
