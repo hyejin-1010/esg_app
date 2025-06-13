@@ -103,4 +103,21 @@ class AuthDao {
     if (maps.isEmpty) return 0;
     return maps.first['reward'] as int;
   }
+
+  Future<bool> deductReward(int userId, int amount) async {
+    final db = await _db;
+    final currentReward = await getReward(userId);
+    
+    if (currentReward < amount) {
+      return false;  // 보유 포인트가 부족
+    }
+
+    await db.update(
+      'Auth',
+      {'reward': currentReward - amount},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+    return true;  // 차감 성공
+  }
 }

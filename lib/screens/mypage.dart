@@ -64,9 +64,12 @@ class _MyPageScreenState extends State<MyPageScreen>
   }
 
   Future<void> _loadPurchaseHistory() async {
+    final userId = _authController.userId;
+    if (userId == null) return;
+
     final db = await DBHelper.database;
     final dao = PurchaseHistoryDao(db);
-    final history = await dao.getAllWithPlantName();
+    final history = await dao.getByUserId(userId);
     setState(() {
       _purchaseHistory = history;
     });

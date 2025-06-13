@@ -9,6 +9,7 @@ class PurchaseHistory {
   final String address; // 주소
   final String detailAddress; // 상세 주소
   final String iconDescription; // 아이콘 설명
+  final int userId;  // 사용자 ID 필드 추가
 
   PurchaseHistory({
     required this.id,
@@ -18,7 +19,8 @@ class PurchaseHistory {
     required this.postCode,
     required this.address,
     required this.detailAddress,
-    required this.iconDescription, 
+    required this.iconDescription,
+    required this.userId,  // 생성자에 userId 추가
   });
 
   // DB에서 읽어올 때 사용
@@ -32,19 +34,20 @@ class PurchaseHistory {
       address: map['address'] as String,
       detailAddress: map['detailAddress'] as String,
       iconDescription: map['iconDescription'] as String,
+      userId: map['userId'] as int,  // fromMap에 userId 추가
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'plantItemId': plantItemId,
       'price': price,
       'purchaseDate': purchaseDate,
       'postCode': postCode,
       'address': address,
       'detailAddress': detailAddress,
-      'iconDescription': iconDescription, 
+      'iconDescription': iconDescription,
+      'userId': userId,
     };
   }
 }
@@ -56,28 +59,25 @@ class PurchaseHistoryDao {
   PurchaseHistoryDao(this.db);
 
   Future<List<Map<String, dynamic>>> getAllWithPlantName() async {
-    final List<Map<String, dynamic>> maps = await db.rawQuery('''
-      SELECT
-        ph.id,
-        ph.plantItemId,
-        pi.name AS plantName,
-        pi.imageAsset AS plantImage,
-        ph.price,
-        ph.purchaseDate,
-        ph.postCode,
-        ph.address,
-        ph.detailAddress,
-        ph.iconDescription
+    return await db.rawQuery('''
+      SELECT ph.*, pi.name as plantName, pi.imageAsset as plantImage
       FROM purchase_history ph
-      INNER JOIN plant_items pi ON ph.plantItemId = pi.id
-      ORDER BY ph.purchaseDate DESC -- 최신 구매 내역부터 표시
+      LEFT JOIN plant_items pi ON ph.plantItemId = pi.id
+      ORDER BY ph.purchaseDate DESC
     ''');
-    return maps;
+  }
+
+  Future<List<Map<String, dynamic>>> getByUserId(int userId) async {
+    return await db.rawQuery('''
+      SELECT ph.*, pi.name as plantName, pi.imageAsset as plantImage
+      FROM purchase_history ph
+      LEFT JOIN plant_items pi ON ph.plantItemId = pi.id
+      WHERE ph.userId = ?
+      ORDER BY ph.purchaseDate DESC
+    ''', [userId]);
   }
 
   Future<int> insert(PurchaseHistory history) async {
-    final map = history.toMap();
-    map.remove('id'); 
-    return await db.insert(tableName, map);
+    return await db.insert('purchase_history', history.toMap());
   }
 } 

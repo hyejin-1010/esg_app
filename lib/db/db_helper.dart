@@ -95,7 +95,8 @@ class DBHelper {
             postCode TEXT,
             address TEXT,
             detailAddress TEXT,
-            iconDescription TEXT
+            iconDescription TEXT,
+            userId INTEGER
           )
         ''');
 
