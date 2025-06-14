@@ -32,15 +32,7 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
   int missionId = -1; // 미션 ID
   Mission? mission;
   final List<File> _images = []; // 이미지 리스트
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      // TODO:
-    });
-  }
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -88,6 +80,10 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
   Future<void> _saveMission() async {
     // TODO: 모두 입력했는 지 확인
 
+    setState(() {
+      isLoading = true;
+    });
+
     // 이미지들 모두 local directory에 저장
     final paths = <String>[];
     for (var image in _images) {
@@ -109,6 +105,10 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
       await feedController.addItem(newFeed, mission?.reward ?? 0);
     } catch (error) {
       debugPrint('[EROR] heidi save mission - feed : $error');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
 
     showCupertinoDialog(
@@ -234,6 +234,18 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
               ),
             ),
           ),
+
+          if (isLoading)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            ),
         ],
       ),
     );
