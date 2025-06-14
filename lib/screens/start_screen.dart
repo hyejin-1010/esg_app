@@ -67,7 +67,7 @@ class _StartScreenState extends State<StartScreen>
                       color: Colors.green,
                     ),
                     onPressed: () {
-                      Get.toNamed('/login');
+                      Get.offAndToNamed('/login');
                     },
                     child:
                         const Text(

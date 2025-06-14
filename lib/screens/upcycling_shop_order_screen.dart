@@ -30,7 +30,7 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
 
   final AuthController _authController = Get.find<AuthController>();
   final AuthDao _authDao = AuthDao();
-  int _points = 0;  // 포인트 변수 추가
+  int _points = 0; // 포인트 변수 추가
 
   @override
   void initState() {
@@ -81,8 +81,11 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
 
     // 포인트 차감 시도
     if (_authController.user == null) return;
-    final success = await _authDao.deductReward(_authController.user!.id, price!);
-    
+    final success = await _authDao.deductReward(
+      _authController.user!.id,
+      price!,
+    );
+
     if (!success) {
       // 포인트 부족 시 팝업 표시
       showDialog(
@@ -95,10 +98,7 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
             title: const Center(
               child: Text(
                 '포인트 부족',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
             ),
             content: Text(
@@ -144,7 +144,7 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
       address: address!,
       detailAddress: _detailAddressController.text,
       iconDescription: iconDescription, // 아이콘 설명 저장
-      userId: _authController.user!.id,  // 사용자 ID 추가
+      userId: _authController.user!.id, // 사용자 ID 추가
     );
 
     await dao.insert(history);
@@ -163,10 +163,7 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
           title: const Center(
             child: Text(
               '구매 완료',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
           ),
           content: const Text(
@@ -179,11 +176,7 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
               child: TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MyPageScreen()),
-                    (route) => false,
-                  );
+                  Get.until((route) => route.isFirst);
                 },
                 child: const Text(
                   '확인',
@@ -239,7 +232,7 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
                 SizedBox(width: 8),
                 const Text('포인트'),
                 Text(
-                  '$_points P',  // 하드코딩된 값 대신 _points 사용
+                  '$_points P', // 하드코딩된 값 대신 _points 사용
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.green,
