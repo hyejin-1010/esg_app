@@ -18,7 +18,6 @@ class _StartScreenState extends State<StartScreen>
   void initState() {
     super.initState();
     authController.init().then((value) {
-      print('heidi test user id ${authController.userId}');
       if (authController.userId != null) Get.offAndToNamed('/home');
     });
   }
@@ -67,7 +66,7 @@ class _StartScreenState extends State<StartScreen>
                       color: Colors.green,
                     ),
                     onPressed: () {
-                      Get.toNamed('/login');
+                      Get.offAndToNamed('/login');
                     },
                     child:
                         const Text(

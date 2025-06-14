@@ -4,6 +4,9 @@ import '../db/db_helper.dart';
 import '../db/model_purchase_history.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:esg_app/controllers/auth.dart';
+import 'package:esg_app/db/model_auth_dao.dart';
+import 'package:esg_app/screens/mypage.dart';
 
 class UpcyclingShopOrderScreen extends StatefulWidget {
   const UpcyclingShopOrderScreen({Key? key}) : super(key: key);
@@ -25,6 +28,10 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
   int? plantItemId;
   String? imageAsset;
 
+  final AuthController _authController = Get.find<AuthController>();
+  final AuthDao _authDao = AuthDao();
+  int _points = 0; // 포인트 변수 추가
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +41,16 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
     price = arguments['price'];
     plantItemId = arguments['plantItemId'];
     imageAsset = arguments['imageAsset'];
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    if (_authController.user != null) {
+      final points = await _authDao.getReward(_authController.user!.id);
+      setState(() {
+        _points = points;
+      });
+    }
   }
 
   // 아이콘 파일 경로를 설명 문자열로 매핑하는 함수
@@ -62,6 +79,53 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
       return;
     }
 
+    // 포인트 차감 시도
+    if (_authController.user == null) return;
+    final success = await _authDao.deductReward(
+      _authController.user!.id,
+      price!,
+    );
+
+    if (!success) {
+      // 포인트 부족 시 팝업 표시
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: const Center(
+              child: Text(
+                '포인트 부족',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+            ),
+            content: Text(
+              '보유 포인트가 부족합니다.\n필요 포인트: ${price}P\n보유 포인트: ${_points}P',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16),
+            ),
+            actions: <Widget>[
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    '확인',
+                    style: TextStyle(fontSize: 18, color: Colors.blue),
+                  ),
+                ),
+              ),
+            ],
+            actionsAlignment: MainAxisAlignment.center,
+          );
+        },
+      );
+      return;
+    }
+
     final db = await DBHelper.database;
     final dao = PurchaseHistoryDao(db);
 
@@ -80,9 +144,13 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
       address: address!,
       detailAddress: _detailAddressController.text,
       iconDescription: iconDescription, // 아이콘 설명 저장
+      userId: _authController.user!.id, // 사용자 ID 추가
     );
 
     await dao.insert(history);
+
+    // 구매 완료 후 포인트 업데이트
+    await _loadUserData();
 
     // 구매 완료 팝업 표시 (AlertDialog 스타일)
     showDialog(
@@ -91,39 +159,33 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-          ), // 이미지와 유사한 둥근 모서리
+          ),
           title: const Center(
             child: Text(
-              '구매 완료', // 팝업 제목
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ), // 제목 스타일
+              '구매 완료',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
           ),
           content: const Text(
-            '식물 구매가 완료되었습니다.\n제작 기간을 포함하여 15일 이내에 배송될 예정입니다.', // 구매 완료 관련 메시지
-            textAlign: TextAlign.center, // 내용 중앙 정렬
-            style: TextStyle(fontSize: 16), // 내용 스타일
+            '식물 구매가 완료되었습니다.\n제작 기간을 포함하여 15일 이내에 배송될 예정입니다.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16),
           ),
           actions: <Widget>[
             Center(
-              // 버튼 중앙 정렬
               child: TextButton(
                 onPressed: () {
-                  // 먼저 팝업을 닫고
                   Navigator.of(context).pop();
-                  // 홈 화면이 나올 때까지 뒤로가기
                   Get.until((route) => route.isFirst);
                 },
                 child: const Text(
                   '확인',
                   style: TextStyle(fontSize: 18, color: Colors.blue),
-                ), // 버튼 텍스트 및 스타일
+                ),
               ),
             ),
           ],
-          actionsAlignment: MainAxisAlignment.center, // actions 위젯들을 중앙으로 정렬
+          actionsAlignment: MainAxisAlignment.center,
         );
       },
     );
@@ -168,12 +230,12 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
                   ),
                 ),
                 SizedBox(width: 8),
+                const Text('포인트'),
                 Text(
-                  '508P',
-                  style: TextStyle(
-                    color: Colors.black,
+                  '$_points P', // 하드코딩된 값 대신 _points 사용
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    color: Colors.green,
                   ),
                 ),
               ],
