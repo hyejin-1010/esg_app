@@ -97,6 +97,14 @@ class AuthController extends GetxController {
     return isDuplicateEmail;
   }
 
+  Future<void> authUpdateReward(int reward) async {
+    _user?.reward = reward;
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('user', AuthUser.serialize(_user!));
+    });
+  }
+
   get user => _user;
   get userId => _user?.id;
+  get reward => _user?.reward ?? 0;
 }

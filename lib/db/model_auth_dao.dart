@@ -107,9 +107,9 @@ class AuthDao {
   Future<bool> deductReward(int userId, int amount) async {
     final db = await _db;
     final currentReward = await getReward(userId);
-    
+
     if (currentReward < amount) {
-      return false;  // 보유 포인트가 부족
+      return false; // 보유 포인트가 부족
     }
 
     await db.update(
@@ -118,6 +118,16 @@ class AuthDao {
       where: 'id = ?',
       whereArgs: [userId],
     );
-    return true;  // 차감 성공
+    return true; // 차감 성공
+  }
+
+  Future<void> updateUserPoints(int userId, int points) async {
+    final db = await DBHelper.database;
+    await db.update(
+      'Auth',
+      {'reward': points},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
   }
 }

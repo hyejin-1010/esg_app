@@ -23,10 +23,12 @@ class FeedController extends GetxController {
     userItems.value = await _dao.getUserItems(authController.userId);
   }
 
-  Future<void> addItem(Feed item) async {
+  Future<void> addItem(Feed item, int reward) async {
     final authController = Get.find<AuthController>();
     item.userId = authController.userId;
-    await _dao.insertItem(item);
+    int totalReward = (authController.reward ?? 0) + (reward ?? 0);
+    await _dao.insertItem(item, totalReward);
+    authController.authUpdateReward(totalReward);
     loadItems(); // 갱신
     loadUserItems(); // 사용자 게시물도 갱신
   }

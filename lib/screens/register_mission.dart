@@ -34,6 +34,15 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
   final List<File> _images = []; // 이미지 리스트
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      // TODO:
+    });
+  }
+
+  @override
   void initState() {
     super.initState();
     final args = Get.arguments;
@@ -97,7 +106,7 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
       imagePathList: paths,
     );
     try {
-      await feedController.addItem(newFeed);
+      await feedController.addItem(newFeed, mission?.reward ?? 0);
     } catch (error) {
       debugPrint('[EROR] heidi save mission - feed : $error');
     }
