@@ -310,7 +310,14 @@ List<Mission> mockupMissionData = [
     iconName: 'mission14.png',
     co2: 500,
   ),
-  // TODO: 업사이클링 미션 추가 필요
+  Mission(
+    id: 15,
+    title: '업사이클링 실천',
+    description: 'CO2 절감량 1,000g',
+    reward: 5,
+    iconName: 'mission15.png',
+    co2: 1000,
+  ),
 ];
 
 List<Feed> mockupFeedData = [
@@ -335,7 +342,7 @@ List<Feed> mockupFeedData = [
 깨끗해진 바다 보니까 속까지 시원~
 
 #그린지구 #비치코밍 #해양쓰레기수거 #환경보호''',
-    userId: 1,
+    userId: 2,
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -351,7 +358,7 @@ List<Feed> mockupFeedData = [
 일회용 컵 대신, 텀블러와 함께 시작하는 하루!
 
 #그린지구 #텀블러사용하기 #탄소중립 #환경보호''',
-    userId: 1,
+    userId: 3,
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -379,7 +386,7 @@ List<Feed> mockupFeedData = [
 열심히 키워봐야지!
 
 #그린지구 #식물키우기 #환경보호''',
-    userId: 1,
+    userId: 2,
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -407,7 +414,7 @@ List<Feed> mockupFeedData = [
 애호박, 당근, 시금치, 콩나물, 버섯까지채소 듬뿍 들어가서 영양은 더하고 부담은 줄였어요.든든하고 건강한 한 끼 완성~
 
 #그린지구 #채식한끼 #크럼블두부''',
-    userId: 1,
+    userId: 2,
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -420,7 +427,7 @@ List<Feed> mockupFeedData = [
     content: '''모아둔 병뚜껑을 녹이고, 찍고, 다듬고…
 하나하나 정성껏 만든 세상에 하나뿐인 그립톡!
 예쁘게 포장해서 친구들에게 선물할 예정이에요 :)''',
-    userId: 1,
+    userId: 2,
     createdAt: DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     imagePathList: [
@@ -511,6 +518,20 @@ List<AuthUser> mockupAuthUserData = [
   AuthUser(
     nickname: 'sunny',
     email: 'sunny@example.com',
+    password: hashPassword('12341234'),
+    reward: 1000,
+  ),
+
+  AuthUser(
+    nickname: 'happy',
+    email: 'happy@example.com',
+    password: hashPassword('12341234'),
+    reward: 500,
+  ),
+
+  AuthUser(
+    nickname: 'gee01',
+    email: 'gee01@example.com',
     password: hashPassword('12341234'),
   ),
 ];

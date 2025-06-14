@@ -1,5 +1,6 @@
 import 'package:esg_app/controllers/auth.dart';
 import 'package:esg_app/db/db_helper.dart';
+import 'package:esg_app/db/model_auth_dao.dart';
 import 'package:esg_app/models/feed_model.dart';
 import 'package:get/get.dart';
 
@@ -40,8 +41,10 @@ class FeedDao {
     return res.map((e) => Feed.fromMap(e)).toList();
   }
 
-  Future<int> insertItem(Feed item) async {
+  Future<int> insertItem(Feed item, int reward) async {
     final db = await DBHelper.database;
+    final authDao = AuthDao();
+    await authDao.updateUserPoints(item.userId, reward);
     return await db.insert('Feed', item.toMap());
   }
 

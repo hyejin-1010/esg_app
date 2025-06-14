@@ -1,3 +1,6 @@
+import 'package:esg_app/db/db_helper.dart';
+import 'package:sqflite/sqflite.dart';
+
 class AuthDao {
   static final AuthDao _instance = AuthDao._internal();
   factory AuthDao() => _instance;
@@ -30,4 +33,4 @@ class AuthDao {
     if (maps.isEmpty) return null;
     return maps.first['nickname'] as String?;
   }
-} 
+}
