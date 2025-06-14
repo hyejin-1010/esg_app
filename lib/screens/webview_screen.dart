@@ -24,18 +24,28 @@ class _WebViewScreenState extends State<WebViewScreen> {
           ..setNavigationDelegate(
             NavigationDelegate(
               onPageStarted: (String url) {
-                setState(() {
-                  isLoading = true;
-                });
+                if (mounted) {
+                  setState(() {
+                    isLoading = true;
+                  });
+                }
               },
               onPageFinished: (String url) {
-                setState(() {
-                  isLoading = false;
-                });
+                if (mounted) {
+                  setState(() {
+                    isLoading = false;
+                  });
+                }
               },
             ),
           )
           ..loadRequest(Uri.parse(widget.url));
+  }
+
+  @override
+  void dispose() {
+    controller.clearCache();
+    super.dispose();
   }
 
   @override
