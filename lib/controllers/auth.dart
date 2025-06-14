@@ -35,6 +35,7 @@ class AuthController extends GetxController {
       nickname: nickname,
       email: email,
       password: hashPassword(password),
+      reward: 5000,
     );
 
     // DB에 저장
