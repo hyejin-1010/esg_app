@@ -183,7 +183,7 @@ class _JoinScreenState extends State<JoinScreen> {
                                     alpha: 0.5,
                                   ),
                                 ),
-                            onPressed: onSubmit,
+                            onPressed: isNotDuplicate ? onSubmit : null,
                             child:
                                 isLoading
                                     ? CircularProgressIndicator(animated: true)
