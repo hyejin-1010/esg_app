@@ -83,7 +83,7 @@ class _JoinScreenState extends State<JoinScreen> {
         );
 
         // 회원가입 성공 후 홈 화면으로 이동
-        Get.offAndToNamed('/home');
+        Get.offAllNamed('/home');
       }
 
       setState(() {
