@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:esg_app/controllers/auth.dart';
 import 'package:esg_app/db/model_auth_dao.dart';
 import 'package:esg_app/screens/mypage.dart';
+import 'package:esg_app/controllers/mypage_controller.dart';
 
 class UpcyclingShopOrderScreen extends StatefulWidget {
   const UpcyclingShopOrderScreen({Key? key}) : super(key: key);
@@ -30,6 +31,7 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
 
   final AuthController _authController = Get.find<AuthController>();
   final AuthDao _authDao = AuthDao();
+  final MyPageController _myPageController = Get.put(MyPageController());
   int _points = 0; // 포인트 변수 추가
 
   @override
@@ -151,8 +153,9 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
 
     // 구매 완료 후 포인트 업데이트
     await _loadUserData();
+    await _myPageController.refreshData(); // 마이페이지 데이터 새로고침
 
-    // 구매 완료 팝업 표시 (AlertDialog 스타일)
+    // 구매 완료 팝업 표시
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -174,9 +177,11 @@ class _UpcyclingShopOrderScreenState extends State<UpcyclingShopOrderScreen> {
           actions: <Widget>[
             Center(
               child: TextButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.of(context).pop();
                   Get.until((route) => route.isFirst);
+                  await _myPageController.refreshData(); // 마이페이지로 이동 전 데이터 새로고침
+                  //Get.toNamed('/mypage');
                 },
                 child: const Text(
                   '확인',

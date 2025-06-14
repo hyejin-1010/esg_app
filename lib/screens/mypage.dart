@@ -1,4 +1,5 @@
 import 'package:esg_app/controllers/auth.dart';
+import 'package:esg_app/controllers/mypage_controller.dart';
 import 'package:flutter/material.dart';
 import 'upcycling_shop_screen.dart';
 import 'post_detail_screen.dart';
@@ -32,6 +33,7 @@ class _MyPageScreenState extends State<MyPageScreen>
   final AuthController _authController = Get.find<AuthController>();
   final AuthDao _authDao = AuthDao();
   int _points = 0;
+  final MyPageController _myPageController = Get.put(MyPageController());
 
   @override
   void initState() {
@@ -41,10 +43,29 @@ class _MyPageScreenState extends State<MyPageScreen>
       vsync: this,
       initialIndex: widget.initialTab,
     );
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        _myPageController.refreshData();
+      }
+    });
+    _myPageController.refreshData(); // 초기 데이터 로드
     _loadPurchaseHistory();
     _loadUserPosts();
     _loadNickname();
     _loadUserData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      print('heidi test call 1');
+      _loadUserData();
+      _loadPurchaseHistory();
+    });
+    
+    _myPageController.refreshData(); // 의존성이 변경될 때마다 데이터 리로드
   }
 
   Future<void> _loadNickname() async {
@@ -76,7 +97,9 @@ class _MyPageScreenState extends State<MyPageScreen>
   }
 
   Future<void> _loadUserData() async {
+    print('heidi test call 2');
     if (_authController.user != null) {
+      print('heidi test call 3');
       final points = await _authDao.getReward(_authController.user!.id);
       setState(() {
         _points = points;
@@ -322,55 +345,20 @@ class _MyPageScreenState extends State<MyPageScreen>
   }
 
   Widget _buildESGStats() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          // 포인트
-          Column(
-            children: [
-              Image.asset('assets/images/mypage/btn_point.png', width: 50),
-              SizedBox(height: 4),
-              Text("포인트", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(
-                "$_points P",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF34C759),
-                ),
-              ),
-            ],
-          ),
-
-          // 이산화탄소 절감
-          Column(
-            children: [
-              Image.asset('assets/images/mypage/btn_co2.png', width: 50),
-              SizedBox(height: 4),
-              Text("이산화탄소 절감", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(
-                "3.25kg",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF34C759),
-                ),
-              ),
-            ],
-          ),
-
-          // 업사이클링 상점 (클릭 시 이동)
-          GestureDetector(
-            onTap: () {
-              Get.toNamed('/upcyclingShop');
-            },
-            child: Column(
+    return GetX<MyPageController>(
+      builder: (_) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            // 포인트
+            Column(
               children: [
-                Image.asset('assets/images/mypage/btn_store.png', width: 50),
+                Image.asset('assets/images/mypage/btn_point.png', width: 50),
                 SizedBox(height: 4),
-                Text("업사이클링", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text("포인트", style: TextStyle(fontWeight: FontWeight.bold)),
                 Text(
-                  "상점",
+                  "${_myPageController.points} P",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF34C759),
@@ -378,67 +366,97 @@ class _MyPageScreenState extends State<MyPageScreen>
                 ),
               ],
             ),
-          ),
-        ],
-      ),
+
+            // 이산화탄소 절감
+            Column(
+              children: [
+                Image.asset('assets/images/mypage/btn_co2.png', width: 50),
+                SizedBox(height: 4),
+                Text("이산화탄소 절감", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  "3.25kg",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF34C759),
+                  ),
+                ),
+              ],
+            ),
+
+            // 업사이클링 상점 (클릭 시 이동)
+            GestureDetector(
+              onTap: () {
+                Get.toNamed('/upcyclingShop');
+              },
+              child: Column(
+                children: [
+                  Image.asset('assets/images/mypage/btn_store.png', width: 50),
+                  SizedBox(height: 4),
+                  Text("업사이클링", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    "상점",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF34C759),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      )
     );
   }
 
   Widget PurchaseHistoryTab() {
-    if (_purchaseHistory.isEmpty) {
-      return const Center(child: Text('구매 내역이 없습니다.'));
-    }
+    return Obx(() {
+      if (_myPageController.purchaseHistory.isEmpty) {
+        return const Center(child: Text('구매 내역이 없습니다.'));
+      }
 
-    return ListView.builder(
-      itemCount: _purchaseHistory.length,
-      itemBuilder: (context, index) {
-        final historyMap = _purchaseHistory[index];
-
-        final int id = historyMap['id'] as int;
-        final String plantName = historyMap['plantName'] as String;
-        final String iconDescription = historyMap['iconDescription'] as String;
-        final int price = historyMap['price'] as int;
-        final String purchaseDateString = historyMap['purchaseDate'] as String;
-        final String address = historyMap['address'] as String;
-        final String detailAddress = historyMap['detailAddress'] as String;
-
-        final DateTime purchaseDate = DateTime.parse(purchaseDateString);
-
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  DateFormat('yyyy.MM.dd HH:mm').format(purchaseDate),
-                  style: const TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  '구매완료',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                    fontSize: 16,
+      return ListView.builder(
+        itemCount: _myPageController.purchaseHistory.length,
+        itemBuilder: (context, index) {
+          final history = _myPageController.purchaseHistory[index];
+          final DateTime purchaseDate = DateTime.parse(history['purchaseDate'] as String);
+          
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    DateFormat('yyyy.MM.dd HH:mm').format(purchaseDate),
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${plantName} | ${iconDescription} | ${NumberFormat('#,###').format(price)}P',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 4),
+                  const Text(
+                    '구매완료',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                      fontSize: 16,
+                    ),
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    '${history['plantName'] ?? '식물'} | ${history['iconDescription']} | ${NumberFormat('#,###').format(history['price'])}P',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    });
   }
 
   Future<void> _pickProfileImage() async {
