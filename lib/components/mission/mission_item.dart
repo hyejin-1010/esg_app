@@ -32,15 +32,28 @@ class MissionItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                mission.title,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-              ),
-              Text(mission.description, style: TextStyle(fontSize: 12)),
-            ],
+          Expanded(
+            flex: 10,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  mission.title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  maxLines: 1,
+                ),
+                Text(
+                  mission.description,
+                  style: TextStyle(fontSize: 10),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ],
+            ),
           ),
           const Spacer(),
           ElevatedButton(
@@ -55,7 +68,7 @@ class MissionItem extends StatelessWidget {
             child: Text(
               '${mission.reward}P 받기',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
               ),
