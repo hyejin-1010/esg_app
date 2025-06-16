@@ -1,6 +1,7 @@
 import 'package:esg_app/controllers/auth.dart';
 import 'package:esg_app/controllers/mypage_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'upcycling_shop_screen.dart';
 import 'post_detail_screen.dart';
 import 'dart:io';
@@ -13,6 +14,9 @@ import 'package:intl/number_symbols_data.dart';
 import 'package:esg_app/controllers/feed_controller.dart';
 import 'package:esg_app/components/feed_item.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
+import 'package:path/path.dart' as path;
 
 class MyPageScreen extends StatefulWidget {
   final int initialTab;
@@ -28,12 +32,14 @@ class _MyPageScreenState extends State<MyPageScreen>
   late TabController _tabController;
   String? _nickname;
   File? _profileImage;
+  String? _profileImageUrl;
   List<Map<String, dynamic>> _purchaseHistory = [];
   final FeedController _feedController = Get.find<FeedController>();
   final AuthController _authController = Get.find<AuthController>();
   final AuthDao _authDao = AuthDao();
   int _points = 0;
   final MyPageController _myPageController = Get.put(MyPageController());
+  bool _isUploadingProfile = false;
 
   @override
   void initState() {
@@ -53,6 +59,7 @@ class _MyPageScreenState extends State<MyPageScreen>
     _loadUserPosts();
     _loadNickname();
     _loadUserData();
+    _loadProfileImage();
   }
 
   @override
@@ -60,7 +67,6 @@ class _MyPageScreenState extends State<MyPageScreen>
     super.didChangeDependencies();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      print('heidi test call 1');
       _loadUserData();
       _loadPurchaseHistory();
     });
@@ -97,9 +103,7 @@ class _MyPageScreenState extends State<MyPageScreen>
   }
 
   Future<void> _loadUserData() async {
-    print('heidi test call 2');
     if (_authController.user != null) {
-      print('heidi test call 3');
       final points = await _authDao.getReward(_authController.user!.id);
       setState(() {
         _points = points;
@@ -133,22 +137,37 @@ class _MyPageScreenState extends State<MyPageScreen>
                   ),
                   child: Center(
                     child: GestureDetector(
-                      onTap: _pickProfileImage,
-                      child: CircleAvatar(
-                        radius: 32,
-                        backgroundColor: Colors.grey[300],
-                        backgroundImage:
-                            _profileImage != null
-                                ? FileImage(_profileImage!)
-                                : null,
-                        child:
-                            _profileImage == null
+                      onTap: _isUploadingProfile ? null : _showImagePickerOptions,
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 32,
+                            backgroundColor: Colors.grey[300],
+                            backgroundImage: _getProfileImage(),
+                            child: (_profileImage == null && _profileImageUrl == null)
                                 ? Icon(
                                   Icons.person,
                                   size: 48,
                                   color: Colors.white,
                                 )
                                 : null,
+                          ),
+                          if (_isUploadingProfile)
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
@@ -374,7 +393,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                 SizedBox(height: 4),
                 Text("이산화탄소 절감", style: TextStyle(fontWeight: FontWeight.bold)),
                 Text(
-                  "3.25kg",
+                  "${(_myPageController.co2.value / 1000).toStringAsFixed(2)}kg",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF34C759),
@@ -459,13 +478,126 @@ class _MyPageScreenState extends State<MyPageScreen>
     });
   }
 
-  Future<void> _pickProfileImage() async {
+  Future<void> _loadProfileImage() async {
+    final userId = _authController.userId;
+    if (userId == null) return;
+    
+    try {
+      final imageUrl = await _authDao.getProfileImageUrl(userId);
+      setState(() {
+        _profileImageUrl = imageUrl;
+      });
+    } catch (e) {
+      debugPrint('[ERROR] 프로필 이미지 에러: $e');
+    }
+  }
+
+  ImageProvider? _getProfileImage() {
+    if (_profileImage != null) {
+      return FileImage(_profileImage!);
+    } else if (_profileImageUrl != null && _profileImageUrl!.isNotEmpty) {
+      return NetworkImage(_profileImageUrl!);
+    }
+    return null;
+  }
+
+  // 프로필 이미지를 Supabase에 저장
+  Future<String?> _saveProfileImageToSupabase(File imageFile) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final uuid = const Uuid().v4(); // 고유한 파일명 생성
+      final extension = path.extension(imageFile.path); // 원본 파일의 확장자 유지
+      final fileName = 'profile_$uuid$extension';
+      final fileBytes = await imageFile.readAsBytes();
+
+      await supabase.storage.from('esg').uploadBinary(fileName, fileBytes);
+
+      // Get public URL
+      final publicUrl = supabase.storage.from('esg').getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      debugPrint('[ERROR] save profile image to supabase: $error');
+      // Show error to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('프로필 이미지 업로드에 실패했습니다. 다시 시도해주세요.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return null;
+    }
+  }
+
+  void _showImagePickerOptions() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context);
+              _pickProfileImage(ImageSource.gallery);
+            },
+            child: const Text('갤러리에서 선택'),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          isDefaultAction: true,
+          onPressed: () => Navigator.pop(context),
+          child: const Text('취소'),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickProfileImage(ImageSource source) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: source);
+    
     if (pickedFile != null) {
       setState(() {
-        _profileImage = File(pickedFile.path);
+        _isUploadingProfile = true;
       });
+
+      try {
+        final imageFile = File(pickedFile.path);
+        
+        // Supabase에 이미지 업로드
+        final imageUrl = await _saveProfileImageToSupabase(imageFile);
+        
+        if (imageUrl != null) {
+          // Auth 테이블에 이미지 URL 저장
+          final userId = _authController.userId;
+          if (userId != null) {
+            await _authDao.updateProfileImageUrl(userId, imageUrl);
+            
+            setState(() {
+              _profileImage = imageFile;
+              _profileImageUrl = imageUrl;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('프로필 이미지가 변경되었습니다.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        debugPrint('[ERROR] pick profile image: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('프로필 이미지 변경에 실패했습니다.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        setState(() {
+          _isUploadingProfile = false;
+        });
+      }
     }
   }
 }

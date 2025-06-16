@@ -27,7 +27,9 @@ class DBHelper {
             nickname TEXT,
             email TEXT,
             password TEXT,
-            reward INTEGER DEFAULT 1000
+            reward INTEGER DEFAULT 1000,
+            profile_image_url TEXT,
+            co2 INTEGER DEFAULT 0
           )
         ''');
 
