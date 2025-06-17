@@ -130,4 +130,62 @@ class AuthDao {
       whereArgs: [userId],
     );
   }
+
+  Future<void> updateProfileImageUrl(int userId, String imageUrl) async {
+    final db = await _db;
+    await db.update(
+      'Auth',
+      {'profile_image_url': imageUrl},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  Future<String?> getProfileImageUrl(int userId) async {
+    final db = await _db;
+    final res = await db.rawQuery(
+      '''
+      SELECT profile_image_url FROM Auth WHERE id = ?
+    ''',
+      [userId],
+    );
+    if (res.isNotEmpty) return res.first['profile_image_url'] as String?;
+    return null;
+  }
+
+  Future<int> getCo2(int userId) async {
+    final db = await _db;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'Auth',
+      columns: ['co2'],
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+
+    if (maps.isEmpty) return 0;
+    return maps.first['co2'] as int;
+  }
+
+  Future<void> updateCo2(int userId, int co2) async {
+    final db = await _db;
+    await db.update(
+      'Auth',
+      {'co2': co2},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  Future<void> addCo2(int userId, int additionalCo2) async {
+    final db = await _db;
+    final currentCo2 = await getCo2(userId);
+    final newCo2 = currentCo2 + additionalCo2;
+    
+    await db.update(
+      'Auth',
+      {'co2': newCo2},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
 }

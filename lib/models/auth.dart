@@ -6,6 +6,8 @@ class AuthUser {
   final String email;
   final String? password;
   int reward;
+  final String? profileImageUrl;
+  int co2;
 
   AuthUser({
     this.id,
@@ -13,6 +15,8 @@ class AuthUser {
     required this.email,
     this.password,
     this.reward = 0,
+    this.profileImageUrl,
+    this.co2 = 0,
   });
 
   factory AuthUser.fromJson(Map<String, dynamic> json) {
@@ -22,6 +26,8 @@ class AuthUser {
       email: json['email'],
       password: json['password'],
       reward: json['reward'] ?? 0,
+      profileImageUrl: json['profile_image_url'],
+      co2: json['co2'] ?? 0,
     );
   }
 
@@ -31,6 +37,8 @@ class AuthUser {
     'email': model.email,
     'password': model.password,
     'reward': model.reward,
+    'profile_image_url': model.profileImageUrl,
+    'co2': model.co2,
   };
 
   static String serialize(AuthUser model) => json.encode(AuthUser.toMap(model));

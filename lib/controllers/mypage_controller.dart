@@ -11,11 +11,13 @@ class MyPageController extends GetxController {
   final RxList<Map<String, dynamic>> purchaseHistory = <Map<String, dynamic>>[].obs;
   final RxInt points = 0.obs;
   final RxString nickname = ''.obs;
+  final RxInt co2 = 0.obs;
 
   Future<void> refreshData() async {
     await _loadPurchaseHistory();
     await _loadUserData();
     await _loadNickname();
+    await _loadCo2();
   }
 
   Future<void> updateNickname(String email, String newNickname) async {
@@ -38,6 +40,14 @@ class MyPageController extends GetxController {
       final points = await _authDao.getReward(_authController.user!.id);
       this.points.value = points;
     }
+  }
+
+  Future<void> _loadCo2() async {
+    final userId = _authController.userId;
+    if (userId == null) return;
+    
+    final co2Value = await _authDao.getCo2(userId);
+    this.co2.value = co2Value;
   }
 
   Future<void> _loadNickname() async {
