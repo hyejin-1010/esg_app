@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:esg_app/constant/color.dart';
@@ -153,100 +152,106 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
       ),
-      body: Stack(
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTitle(),
-                _buildInputContent(),
-                Row(
-                  children: [
-                    Text(
-                      '사진 등록',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.w900,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Stack(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTitle(),
+                  _buildInputContent(),
+                  Row(
+                    children: [
+                      Text(
+                        '사진 등록',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          decoration: TextDecoration.underline,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
+                      const SizedBox(width: 4.0),
+                      Text(
+                        '(최대 2개 까지만 등록 가능)',
+                        style: TextStyle(fontSize: 12.0),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8.0),
+
+                  // 첨부 이미지
+                  Container(
+                    color: const Color(0xFFF6FAFE),
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      spacing: 8.0,
+                      children: [
+                        AddImageBox(
+                          onImageSelected: (XFile file) {
+                            _images.add(File(file.path));
+                            setState(() {});
+                          },
+                        ),
+                        ..._images.map((image) => _buildImageItem(image)),
+                      ],
                     ),
-                    const SizedBox(width: 4.0),
-                    Text('(최대 2개 까지만 등록 가능)', style: TextStyle(fontSize: 12.0)),
-                  ],
-                ),
-                const SizedBox(height: 8.0),
-
-                // 첨부 이미지
-                Container(
-                  color: const Color(0xFFF6FAFE),
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    spacing: 8.0,
-                    children: [
-                      AddImageBox(
-                        onImageSelected: (XFile file) {
-                          _images.add(File(file.path));
-                          setState(() {});
-                        },
-                      ),
-                      ..._images.map((image) => _buildImageItem(image)),
-                    ],
                   ),
-                ),
 
-                const SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
 
-                RichText(
-                  text: TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    children: [
-                      TextSpan(text: '탄소중립 실천을 위해 업로드한 이미지를 '),
-                      TextSpan(
-                        text: '3개월 후에 자동 삭제',
-                        style: TextStyle(fontWeight: FontWeight.w900),
-                      ),
-                      TextSpan(text: '합니다.'),
-                    ],
+                  RichText(
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      children: [
+                        TextSpan(text: '탄소중립 실천을 위해 업로드한 이미지를 '),
+                        TextSpan(
+                          text: '3개월 후에 자동 삭제',
+                          style: TextStyle(fontWeight: FontWeight.w900),
+                        ),
+                        TextSpan(text: '합니다.'),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          Positioned(
-            left: 24.0,
-            bottom: padding.bottom + 16.0,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                minimumSize: Size(size.width - 48.0, 54.0),
-              ),
-              onPressed: _saveMission,
-              child: Text(
-                '등록하기',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(color: Colors.white),
+                ],
               ),
             ),
-          ),
 
-          if (isLoading)
             Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: Center(child: CircularProgressIndicator()),
+              left: 24.0,
+              bottom: padding.bottom + 16.0,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  minimumSize: Size(size.width - 48.0, 54.0),
+                ),
+                onPressed: _saveMission,
+                child: Text(
+                  '등록하기',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(color: Colors.white),
+                ),
               ),
             ),
-        ],
+
+            if (isLoading)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
