@@ -1,9 +1,10 @@
 import 'dart:math';
 
+import 'package:esg_app/controllers/auth.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/services.dart';
-import 'package:get/route_manager.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:get/get.dart';
 
 import '../utils/validators.dart';
 import '../widgets/custom_text_form_field.dart';
@@ -16,6 +17,8 @@ class FindPasswordScreen extends StatefulWidget {
 }
 
 class _FindPasswordScreenState extends State<FindPasswordScreen> {
+  final authController = Get.find<AuthController>();
+
   String email = '';
   String authCode = '';
   String? errorText;
@@ -45,18 +48,20 @@ class _FindPasswordScreenState extends State<FindPasswordScreen> {
       });
 
       String? newErrorText = UtilValidators.email(email);
+      if (newErrorText != null) throw Exception(newErrorText);
 
-      if (newErrorText == null) {
-        // 인증코드 확인 후 비밀번호 변경 화면으로 이동
-        showToast(
-          context: context,
-          builder: buildToast,
-          location: ToastLocation.topCenter,
-        );
-        errorText = null;
-      } else {
-        throw Exception(newErrorText);
-      }
+      bool isDuplicateEmail = await authController.authCheckDuplicateEmail(
+        email: email,
+      );
+      if (!isDuplicateEmail) throw Exception('이메일이 존재하지 않습니다.');
+
+      // 인증코드 확인 후 비밀번호 변경 화면으로 이동
+      showToast(
+        context: context,
+        builder: buildToast,
+        location: ToastLocation.topCenter,
+      );
+      errorText = null;
 
       setState(() {
         isLoading = false;
@@ -80,7 +85,7 @@ class _FindPasswordScreenState extends State<FindPasswordScreen> {
 
       if (_formKey.currentState!.validate()) {
         // 회원가입 성공 후 홈 화면으로 이동
-        Get.toNamed('/find/new/password');
+        Get.toNamed('/find/new/password', arguments: {'email': email});
       }
 
       setState(() {
