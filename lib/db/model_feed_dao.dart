@@ -66,4 +66,16 @@ class FeedDao {
       );
     }
   }
+
+  Future<Feed> getItem(int id) async {
+    final db = await DBHelper.database;
+    final res = await db.query('Feed', where: 'id = ?', whereArgs: [id]);
+    return Feed.fromMap(res.first);
+  }
+
+  Future<bool> deleteItem(int feedId) async {
+    final db = await DBHelper.database;
+    final res = await db.delete('Feed', where: 'id = ?', whereArgs: [feedId]);
+    return res > 0;
+  }
 }

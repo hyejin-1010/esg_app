@@ -284,11 +284,18 @@ class _MyPageScreenState extends State<MyPageScreen>
 
                       return GestureDetector(
                         onTap: () {
+                          Get.toNamed(
+                            '/postDetail',
+                            arguments: {'id': feed.id},
+                          );
+
+                          /*
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder:
                                   (context) => PostDetailScreen(
+                                    feedId: feed.id!,
                                     imageUrls: feed.imagePathList,
                                     nickname: feed.userName ?? '',
                                     date: feed.createdAt,
@@ -296,6 +303,7 @@ class _MyPageScreenState extends State<MyPageScreen>
                                   ),
                             ),
                           );
+                          */
                         },
                         child: Hero(
                           tag: imageUrl,
