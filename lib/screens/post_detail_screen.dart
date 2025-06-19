@@ -72,7 +72,11 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           (BuildContext context) => CupertinoActionSheet(
             actions: <CupertinoActionSheetAction>[
               CupertinoActionSheetAction(
-                onPressed: () {},
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await Get.toNamed('/editFeed', arguments: {'id': id});
+                  _getData();
+                },
                 child: const Text('수정'),
               ),
               CupertinoActionSheetAction(

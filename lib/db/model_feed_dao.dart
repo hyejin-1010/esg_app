@@ -78,4 +78,15 @@ class FeedDao {
     final res = await db.delete('Feed', where: 'id = ?', whereArgs: [feedId]);
     return res > 0;
   }
+
+  Future<bool> updateItem(Feed item) async {
+    final db = await DBHelper.database;
+    final res = await db.update(
+      'Feed',
+      item.toMap(),
+      where: 'id = ?',
+      whereArgs: [item.id],
+    );
+    return res > 0;
+  }
 }

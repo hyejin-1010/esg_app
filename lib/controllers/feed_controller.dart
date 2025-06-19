@@ -41,13 +41,20 @@ class FeedController extends GetxController {
   }
 
   Future<bool> deleteItem(int feedId) async {
-    final res = await _dao.deleteItem(feedId);
+    final success = await _dao.deleteItem(feedId);
     await loadItems();
     await loadUserItems(); // 사용자 게시물도 갱신
-    return res;
+    return success;
   }
 
   Future<Feed> loadItem(int id) async {
     return await _dao.getItem(id);
+  }
+
+  Future<bool> updateItem(Feed item) async {
+    final success = await _dao.updateItem(item);
+    loadItems();
+    loadUserItems();
+    return success;
   }
 }
