@@ -70,17 +70,17 @@ class _MyPageScreenState extends State<MyPageScreen>
       _loadUserData();
       _loadPurchaseHistory();
     });
-    
+
     _myPageController.refreshData(); // 의존성이 변경될 때마다 데이터 리로드
   }
 
   Future<void> _loadNickname() async {
     final userId = _authController.userId;
     if (userId == null) return;
-    
+
     final dbNickname = await _authDao.getNicknameByUserId(userId);
     final defaultNickname = _authController.user.email.split('@').first;
-    
+
     setState(() {
       _nickname = dbNickname ?? defaultNickname;
     });
@@ -137,20 +137,23 @@ class _MyPageScreenState extends State<MyPageScreen>
                   ),
                   child: Center(
                     child: GestureDetector(
-                      onTap: _isUploadingProfile ? null : _showImagePickerOptions,
+                      onTap:
+                          _isUploadingProfile ? null : _showImagePickerOptions,
                       child: Stack(
                         children: [
                           CircleAvatar(
                             radius: 32,
                             backgroundColor: Colors.grey[300],
                             backgroundImage: _getProfileImage(),
-                            child: (_profileImage == null && _profileImageUrl == null)
-                                ? Icon(
-                                  Icons.person,
-                                  size: 48,
-                                  color: Colors.white,
-                                )
-                                : null,
+                            child:
+                                (_profileImage == null &&
+                                        _profileImageUrl == null)
+                                    ? Icon(
+                                      Icons.person,
+                                      size: 48,
+                                      color: Colors.white,
+                                    )
+                                    : null,
                           ),
                           if (_isUploadingProfile)
                             Positioned.fill(
@@ -281,11 +284,18 @@ class _MyPageScreenState extends State<MyPageScreen>
 
                       return GestureDetector(
                         onTap: () {
+                          Get.toNamed(
+                            '/postDetail',
+                            arguments: {'id': feed.id},
+                          );
+
+                          /*
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder:
                                   (context) => PostDetailScreen(
+                                    feedId: feed.id!,
                                     imageUrls: feed.imagePathList,
                                     nickname: feed.userName ?? '',
                                     date: feed.createdAt,
@@ -293,26 +303,31 @@ class _MyPageScreenState extends State<MyPageScreen>
                                   ),
                             ),
                           );
+                          */
                         },
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value:
-                                    loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
-                              ),
-                            );
-                          },
-                          errorBuilder:
-                              (context, error, stackTrace) =>
-                                  const Icon(Icons.error),
+                        child: Hero(
+                          tag: imageUrl,
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress
+                                                  .expectedTotalBytes!
+                                          : null,
+                                ),
+                              );
+                            },
+                            errorBuilder:
+                                (context, error, stackTrace) =>
+                                    const Icon(Icons.error),
+                          ),
                         ),
                       );
                     },
@@ -332,99 +347,116 @@ class _MyPageScreenState extends State<MyPageScreen>
     final controller = TextEditingController(text: _nickname);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('닉네임 변경'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: '새 닉네임 입력'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('취소'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('닉네임 변경'),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(hintText: '새 닉네임 입력'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('취소'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  final newNickname = controller.text.trim();
+                  try {
+                    await _authDao.updateNickname(
+                      _authController.user.email,
+                      newNickname,
+                    );
+                    await _loadNickname(); // 닉네임 다시 로드
+                    Navigator.pop(context);
+                  } catch (e) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(e.toString())));
+                  }
+                },
+                child: const Text('저장'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () async {
-              final newNickname = controller.text.trim();
-              try {
-                await _authDao.updateNickname(_authController.user.email, newNickname);
-                await _loadNickname(); // 닉네임 다시 로드
-                Navigator.pop(context);
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(e.toString())),
-                );
-              }
-            },
-            child: const Text('저장'),
-          ),
-        ],
-      ),
     );
   }
 
   Widget _buildESGStats() {
     return GetX<MyPageController>(
-      builder: (_) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            // 포인트
-            Column(
+      builder:
+          (_) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Image.asset('assets/images/mypage/btn_point.png', width: 50),
-                SizedBox(height: 4),
-                Text("포인트", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  "${_myPageController.points} P",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF34C759),
-                  ),
-                ),
-              ],
-            ),
-
-            // 이산화탄소 절감
-            Column(
-              children: [
-                Image.asset('assets/images/mypage/btn_co2.png', width: 50),
-                SizedBox(height: 4),
-                Text("이산화탄소 절감", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(
-                  "${(_myPageController.co2.value / 1000).toStringAsFixed(2)}kg",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF34C759),
-                  ),
-                ),
-              ],
-            ),
-
-            // 업사이클링 상점 (클릭 시 이동)
-            GestureDetector(
-              onTap: () {
-                Get.toNamed('/upcyclingShop');
-              },
-              child: Column(
-                children: [
-                  Image.asset('assets/images/mypage/btn_store.png', width: 50),
-                  SizedBox(height: 4),
-                  Text("업사이클링", style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(
-                    "상점",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF34C759),
+                // 포인트
+                Column(
+                  children: [
+                    Image.asset(
+                      'assets/images/mypage/btn_point.png',
+                      width: 50,
                     ),
+                    SizedBox(height: 4),
+                    Text("포인트", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      "${_myPageController.points} P",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF34C759),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // 이산화탄소 절감
+                Column(
+                  children: [
+                    Image.asset('assets/images/mypage/btn_co2.png', width: 50),
+                    SizedBox(height: 4),
+                    Text(
+                      "이산화탄소 절감",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "${(_myPageController.co2.value / 1000).toStringAsFixed(2)}kg",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF34C759),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // 업사이클링 상점 (클릭 시 이동)
+                GestureDetector(
+                  onTap: () {
+                    Get.toNamed('/upcyclingShop');
+                  },
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        'assets/images/mypage/btn_store.png',
+                        width: 50,
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        "업사이클링",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "상점",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF34C759),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      )
+          ),
     );
   }
 
@@ -438,8 +470,10 @@ class _MyPageScreenState extends State<MyPageScreen>
         itemCount: _myPageController.purchaseHistory.length,
         itemBuilder: (context, index) {
           final history = _myPageController.purchaseHistory[index];
-          final DateTime purchaseDate = DateTime.parse(history['purchaseDate'] as String);
-          
+          final DateTime purchaseDate = DateTime.parse(
+            history['purchaseDate'] as String,
+          );
+
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Padding(
@@ -481,7 +515,7 @@ class _MyPageScreenState extends State<MyPageScreen>
   Future<void> _loadProfileImage() async {
     final userId = _authController.userId;
     if (userId == null) return;
-    
+
     try {
       final imageUrl = await _authDao.getProfileImageUrl(userId);
       setState(() {
@@ -532,29 +566,30 @@ class _MyPageScreenState extends State<MyPageScreen>
   void _showImagePickerOptions() {
     showCupertinoModalPopup(
       context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            onPressed: () {
-              Navigator.pop(context);
-              _pickProfileImage(ImageSource.gallery);
-            },
-            child: const Text('갤러리에서 선택'),
+      builder:
+          (BuildContext context) => CupertinoActionSheet(
+            actions: <CupertinoActionSheetAction>[
+              CupertinoActionSheetAction(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _pickProfileImage(ImageSource.gallery);
+                },
+                child: const Text('갤러리에서 선택'),
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              isDefaultAction: true,
+              onPressed: () => Navigator.pop(context),
+              child: const Text('취소'),
+            ),
           ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          isDefaultAction: true,
-          onPressed: () => Navigator.pop(context),
-          child: const Text('취소'),
-        ),
-      ),
     );
   }
 
   Future<void> _pickProfileImage(ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
-    
+
     if (pickedFile != null) {
       setState(() {
         _isUploadingProfile = true;
@@ -562,16 +597,16 @@ class _MyPageScreenState extends State<MyPageScreen>
 
       try {
         final imageFile = File(pickedFile.path);
-        
+
         // Supabase에 이미지 업로드
         final imageUrl = await _saveProfileImageToSupabase(imageFile);
-        
+
         if (imageUrl != null) {
           // Auth 테이블에 이미지 URL 저장
           final userId = _authController.userId;
           if (userId != null) {
             await _authDao.updateProfileImageUrl(userId, imageUrl);
-            
+
             setState(() {
               _profileImage = imageFile;
               _profileImageUrl = imageUrl;

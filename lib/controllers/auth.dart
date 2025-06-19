@@ -105,6 +105,15 @@ class AuthController extends GetxController {
     });
   }
 
+  Future<bool> authUpdatePassword({
+    required String email,
+    required String password,
+  }) async {
+    AuthDao authDao = AuthDao();
+    final success = await authDao.updatePassword(email, hashPassword(password));
+    return success;
+  }
+
   get user => _user;
   get userId => _user?.id;
   get reward => _user?.reward ?? 0;

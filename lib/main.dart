@@ -2,9 +2,11 @@ import 'package:esg_app/controllers/auth.dart';
 import 'package:esg_app/controllers/find_controller.dart';
 import 'package:esg_app/controllers/mission_controller.dart';
 import 'package:esg_app/controllers/map_controller.dart';
+import 'package:esg_app/screens/edit_feed.dart';
 import 'package:esg_app/screens/home.dart';
 import 'package:esg_app/screens/login.dart';
 import 'package:esg_app/screens/map.dart';
+import 'package:esg_app/screens/post_detail_screen.dart';
 import 'package:esg_app/screens/register_mission.dart';
 import 'package:esg_app/screens/upcycling_shop_detail_screen.dart';
 import 'package:esg_app/screens/upcycling_shop_order_screen.dart';
@@ -148,6 +150,8 @@ class MyApp extends StatelessWidget {
           name: '/upcyclingShopOrder',
           page: () => UpcyclingShopOrderScreen(),
         ),
+        GetPage(name: '/postDetail', page: () => PostDetailScreen()),
+        GetPage(name: '/editFeed', page: () => EditFeedScreen()),
       ],
     );
   }

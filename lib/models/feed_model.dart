@@ -1,11 +1,11 @@
 class Feed {
   final int? id;
-  final String content;
+  String content;
   int userId;
   final String? userName;
   final String createdAt;
   final String updatedAt;
-  final List<String> imagePathList; // 이미지 Path List
+  List<String> imagePathList; // 이미지 Path List
   final int missionId;
   final bool isFavorite;
   final int favoriteCount;

@@ -168,24 +168,30 @@ class AuthDao {
 
   Future<void> updateCo2(int userId, int co2) async {
     final db = await _db;
-    await db.update(
-      'Auth',
-      {'co2': co2},
-      where: 'id = ?',
-      whereArgs: [userId],
-    );
+    await db.update('Auth', {'co2': co2}, where: 'id = ?', whereArgs: [userId]);
   }
 
   Future<void> addCo2(int userId, int additionalCo2) async {
     final db = await _db;
     final currentCo2 = await getCo2(userId);
     final newCo2 = currentCo2 + additionalCo2;
-    
+
     await db.update(
       'Auth',
       {'co2': newCo2},
       where: 'id = ?',
       whereArgs: [userId],
     );
+  }
+
+  Future<bool> updatePassword(String email, String password) async {
+    final db = await _db;
+    final res = await db.update(
+      'Auth',
+      {'password': password},
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+    return res > 0;
   }
 }
