@@ -32,7 +32,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('게시물', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Text(
+          '게시물',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
         centerTitle: false,
       ),
       backgroundColor: Colors.white,
@@ -49,22 +52,43 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: CarouselSlider(
-                        items: widget.imageUrls.map((item) => Image.network(
-                          item,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
-                                    ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                    : null,
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-                        )).toList(),
+                        items:
+                            widget.imageUrls
+                                .map(
+                                  (item) => Hero(
+                                    tag: item,
+                                    child: Image.network(
+                                      item,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (
+                                        context,
+                                        child,
+                                        loadingProgress,
+                                      ) {
+                                        if (loadingProgress == null)
+                                          return child;
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value:
+                                                loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
+                                                    : null,
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(Icons.error),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
                         options: CarouselOptions(
                           viewportFraction: 1.0,
                           enableInfiniteScroll: false,
@@ -82,30 +106,45 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       right: 0,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: widget.imageUrls.asMap().entries.map((entry) {
-                          return GestureDetector(
-                            onTap: () => print('Tapped on indicator ${entry.key}'),
-                            child: Container(
-                              width: 8.0,
-                              height: 8.0,
-                              margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: _currentIndex == entry.key
-                                    ? Colors.white
-                                    : Colors.grey,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                        children:
+                            widget.imageUrls.asMap().entries.map((entry) {
+                              return GestureDetector(
+                                onTap:
+                                    () => print(
+                                      'Tapped on indicator ${entry.key}',
+                                    ),
+                                child: Container(
+                                  width: 8.0,
+                                  height: 8.0,
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color:
+                                        _currentIndex == entry.key
+                                            ? Colors.white
+                                            : Colors.grey,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                       ),
                     ),
                   ],
-                ) else Container(),
+                )
+              else
+                Container(),
               SizedBox(height: 12),
               Row(
                 children: [
-                  Text(widget.nickname, style: TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w600)),
+                  Text(
+                    widget.nickname,
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   SizedBox(width: 8),
                   Text('|', style: TextStyle(color: Colors.grey)),
                   SizedBox(width: 8),
@@ -131,4 +170,4 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
   }
-} 
+}
