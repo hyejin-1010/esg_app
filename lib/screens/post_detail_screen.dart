@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class PostDetailScreen extends StatefulWidget {
   const PostDetailScreen({super.key});
@@ -237,7 +238,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           Text('|', style: TextStyle(color: Colors.grey)),
                           SizedBox(width: 8),
                           Text(
-                            feed!.createdAt,
+                            DateFormat(
+                              'yyyy-MM-dd HH:mm',
+                            ).format(DateTime.parse(feed!.createdAt)),
                             style: TextStyle(color: Colors.grey),
                           ),
                         ],
@@ -250,11 +253,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(28),
                         ),
-                        child: Text(
-                          feed!.content,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                        child: RichText(
+                          text: TextSpan(
+                            children: _buildTextSpans(feed!.content, context),
                           ),
                         ),
                       ),
@@ -263,5 +264,43 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         ),
       ),
     );
+  }
+
+  List<TextSpan> _buildTextSpans(String content, BuildContext context) {
+    final List<TextSpan> textSpans = [];
+    final RegExp hashtagRegExp = RegExp(r'#\S+');
+    final defaultStyle = Theme.of(
+      context,
+    ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800, fontSize: 18);
+
+    int lastIndex = 0;
+    for (final match in hashtagRegExp.allMatches(content)) {
+      if (match.start > lastIndex) {
+        textSpans.add(
+          TextSpan(
+            text: content.substring(lastIndex, match.start),
+            style: defaultStyle,
+          ),
+        );
+      }
+
+      // Add hashtag with blue color
+      textSpans.add(
+        TextSpan(
+          text: match.group(0),
+          style: defaultStyle?.copyWith(color: Colors.blue),
+        ),
+      );
+
+      lastIndex = match.end;
+    }
+
+    if (lastIndex < content.length) {
+      textSpans.add(
+        TextSpan(text: content.substring(lastIndex), style: defaultStyle),
+      );
+    }
+
+    return textSpans;
   }
 }

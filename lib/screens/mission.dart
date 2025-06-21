@@ -59,7 +59,7 @@ class _MissionScreenState extends State<MissionScreen> {
             const SizedBox(height: 24.0),
 
             missions.isEmpty
-                ? CircularProgressIndicator() // 로딩r 중 표시
+                ? CircularProgressIndicator() // 로딩 중 표시
                 : Expanded(
                   child: ListView.builder(
                     itemCount: filteredMissions.length,

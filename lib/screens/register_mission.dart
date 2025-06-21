@@ -105,6 +105,7 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
       await feedController.addItem(newFeed, mission?.reward ?? 0);
     } catch (error) {
       debugPrint('[EROR] heidi save mission - feed : $error');
+      Get.snackbar('실패', '게시물 등록에 실패했습니다. 잠시 후 재시도해주세요.');
     } finally {
       setState(() {
         isLoading = false;
@@ -225,7 +226,7 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
                 backgroundColor: primaryColor,
                 minimumSize: Size(size.width - 48.0, 54.0),
               ),
-              onPressed: _saveMission,
+              onPressed: _contentController.text.isEmpty ? null : _saveMission,
               child: Text(
                 '등록하기',
                 style: Theme.of(
@@ -282,6 +283,9 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
       ),
       child: TextField(
         controller: _contentController,
+        onChanged: (value) {
+          setState(() {});
+        },
         minLines: 6,
         maxLines: 6,
         decoration: InputDecoration(

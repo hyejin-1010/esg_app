@@ -130,7 +130,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           child:
                               Text(
                                 '비밀번호를 잊으셨나요?',
-                                style: TextStyle(color: Colors.green),
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  decoration: TextDecoration.none,
+                                ),
                               ).xSmall.semiBold,
                         ),
                       ],

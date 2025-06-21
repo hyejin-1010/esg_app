@@ -72,6 +72,7 @@ void main() async {
 
   runApp(
     ShadcnApp(
+      debugShowCheckedModeBanner: false,
       title: '가칭',
       theme: ThemeData(
         colorScheme: ColorSchemes.lightGreen(),
@@ -92,6 +93,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: material.ThemeData(
         colorScheme: material.ColorScheme.light(primary: primaryColor),
         fontFamily: 'NanumSquareNeo',

@@ -77,6 +77,7 @@ class _FeedItemState extends State<FeedItem> {
               InkWell(
                 onTap: widget.onFavoriteTap,
                 child: Icon(
+                  color: widget.feed.isFavorite ? Colors.red : Colors.black,
                   widget.feed.isFavorite
                       ? Icons.favorite
                       : Icons.favorite_border,

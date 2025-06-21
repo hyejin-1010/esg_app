@@ -8,18 +8,11 @@ class MissionDao {
     return res.map((e) => Mission.fromMap(e)).toList();
   }
 
-  Future<List<Mission>> getAvailableMissions(int? userId) async {
+  Future<List<Mission>> getAvailableMissions() async {
     final db = await DBHelper.database;
-    final res = await db.rawQuery(
-      '''
+    final res = await db.rawQuery('''
       SELECT m.* FROM Mission m
-      WHERE m.id NOT IN (
-        SELECT f.mission_id FROM Feed f
-        WHERE f.user_id = ?
-      )
-    ''',
-      [userId ?? 0],
-    );
+    ''');
     return res.map((e) => Mission.fromMap(e)).toList();
   }
 

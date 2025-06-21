@@ -29,9 +29,11 @@ class FeedDao {
     final res = await db.rawQuery(
       '''
       SELECT f.*, 
+        au.nickname as user_name,
         CASE WHEN fav.user_id IS NOT NULL THEN 1 ELSE 0 END as is_favorite,
         (SELECT COUNT(*) FROM Favorite WHERE feed_id = f.id) as favorite_count
       FROM Feed f
+      LEFT JOIN Auth au ON f.user_id = au.id
       LEFT JOIN Favorite fav ON f.id = fav.feed_id AND fav.user_id = ?
       WHERE f.user_id = ?
       ORDER BY f.created_at DESC
@@ -69,7 +71,15 @@ class FeedDao {
 
   Future<Feed> getItem(int id) async {
     final db = await DBHelper.database;
-    final res = await db.query('Feed', where: 'id = ?', whereArgs: [id]);
+    final res = await db.rawQuery(
+      '''
+      SELECT f.*, au.nickname as user_name
+      FROM Feed f
+      LEFT JOIN Auth au ON f.user_id = au.id
+      WHERE f.id = ?
+    ''',
+      [id],
+    );
     return Feed.fromMap(res.first);
   }
 

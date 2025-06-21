@@ -48,16 +48,21 @@ class AuthController extends GetxController {
     if (isDuplicateUser) {
       throw Exception('이미 사용중인 이메일입니다.');
     }
-    final newUserId = await authDao.insertUser(newUser);
 
-    _user = AuthUser(
-      id: newUserId,
-      nickname: newUser.nickname,
-      email: newUser.email,
-    );
+    try {
+      final newUserId = await authDao.insertUser(newUser);
 
-    // 2초 대기
-    await Future.delayed(const Duration(seconds: 2));
+      _user = AuthUser(
+        id: newUserId,
+        nickname: newUser.nickname,
+        email: newUser.email,
+      );
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setString('user', AuthUser.serialize(_user!));
+      });
+    } catch (error) {
+      throw Exception('회원가입에 실패했습니다. 잠시 후 재시도해주세요.');
+    }
   }
 
   Future<void> authLogin({

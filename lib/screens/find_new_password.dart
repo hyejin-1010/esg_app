@@ -4,7 +4,6 @@ import 'package:esg_app/controllers/auth.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
@@ -63,8 +62,10 @@ class _FindNewPasswordScreenState extends State<FindNewPasswordScreen> {
           email: Get.arguments['email'],
           password: password,
         );
-        if (!success) throw Exception('비밀번호 변경에 실패했습니다.');
-        // 회원가입 성공 후 홈 화면으로 이동
+        if (!success) {
+          throw Exception('비밀번호 변경에 실패했습니다. 잠시 후 재시도해주세요.');
+        }
+        // 비밀번호 변경 성공 후 로그인 화면으로 이동
         Get.offNamedUntil('/login', (route) => false);
       }
 

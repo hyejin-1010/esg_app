@@ -38,7 +38,6 @@ class _JoinScreenState extends State<JoinScreen> {
     });
   }
 
-  // 실제 서버가 없으니 랜덤으로 중복 체크
   Future<void> checkDuplicateNickname() async {
     String? errorText = UtilValidators.email(email);
     final isDuplicateEmail = await getxController.authCheckDuplicateEmail(
@@ -100,8 +99,15 @@ class _JoinScreenState extends State<JoinScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      child: SafeArea(
+    return material.Scaffold(
+      appBar: material.AppBar(
+        leading: material.IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+        ),
+        title: const Text(''),
+      ),
+      body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: Stack(
