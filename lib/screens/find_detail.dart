@@ -24,9 +24,7 @@ class _FindDetailPopupState extends State<FindDetailPopup> {
 
   void _getData() async {
     final store = await findController.getStore(widget.id);
-    setState(() {
-      this.store = store;
-    });
+    setState(() => this.store = store);
   }
 
   @override

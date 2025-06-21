@@ -139,82 +139,93 @@ class _RegisterMissionScreenState extends State<RegisterMissionScreen> {
     );
   }
 
+  final AppBar _appBar = AppBar(
+    title: const Text('그린미션 등록', style: TextStyle(fontWeight: FontWeight.bold)),
+    centerTitle: false,
+    backgroundColor: Colors.white,
+    surfaceTintColor: Colors.white,
+  );
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final padding = MediaQuery.of(context).padding;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          '그린미션 등록',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: false,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-      ),
+      appBar: _appBar,
       body: Stack(
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTitle(),
-                _buildInputContent(),
-                Row(
-                  children: [
-                    Text(
-                      '사진 등록',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.w900,
+          SingleChildScrollView(
+            child: Container(
+              constraints: BoxConstraints(
+                minHeight:
+                    size.height -
+                    padding.top -
+                    padding.bottom -
+                    _appBar.preferredSize.height,
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTitle(),
+                  _buildInputContent(),
+                  Row(
+                    children: [
+                      Text(
+                        '사진 등록',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          decoration: TextDecoration.underline,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
+                      const SizedBox(width: 4.0),
+                      Text(
+                        '(최대 2개 까지만 등록 가능)',
+                        style: TextStyle(fontSize: 12.0),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8.0),
+
+                  // 첨부 이미지
+                  Container(
+                    color: const Color(0xFFF6FAFE),
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      spacing: 8.0,
+                      children: [
+                        AddImageBox(
+                          onImageSelected: (XFile file) {
+                            _images.add(File(file.path));
+                            setState(() {});
+                          },
+                        ),
+                        ..._images.map((image) => _buildImageItem(image)),
+                      ],
                     ),
-                    const SizedBox(width: 4.0),
-                    Text('(최대 2개 까지만 등록 가능)', style: TextStyle(fontSize: 12.0)),
-                  ],
-                ),
-                const SizedBox(height: 8.0),
-
-                // 첨부 이미지
-                Container(
-                  color: const Color(0xFFF6FAFE),
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    spacing: 8.0,
-                    children: [
-                      AddImageBox(
-                        onImageSelected: (XFile file) {
-                          _images.add(File(file.path));
-                          setState(() {});
-                        },
-                      ),
-                      ..._images.map((image) => _buildImageItem(image)),
-                    ],
                   ),
-                ),
 
-                const SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
 
-                RichText(
-                  text: TextSpan(
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    children: [
-                      TextSpan(text: '탄소중립 실천을 위해 업로드한 이미지를 '),
-                      TextSpan(
-                        text: '3개월 후에 자동 삭제',
-                        style: TextStyle(fontWeight: FontWeight.w900),
-                      ),
-                      TextSpan(text: '합니다.'),
-                    ],
+                  RichText(
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      children: [
+                        TextSpan(text: '탄소중립 실천을 위해 업로드한 이미지를 '),
+                        TextSpan(
+                          text: '3개월 후에 자동 삭제',
+                          style: TextStyle(fontWeight: FontWeight.w900),
+                        ),
+                        TextSpan(text: '합니다.'),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 

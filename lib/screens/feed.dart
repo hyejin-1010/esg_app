@@ -22,7 +22,6 @@ class _FeedScreenState extends State<FeedScreen> {
   void _getData() async {
     try {
       await feedController.loadItems();
-      setState(() {});
     } catch (e) {
       debugPrint('[ERROR] FeedScreen: _getData() error: $e');
     }
@@ -42,20 +41,21 @@ class _FeedScreenState extends State<FeedScreen> {
         leadingWidth: 0,
         surfaceTintColor: Colors.white,
       ),
-      body: ListView.builder(
-        itemCount: feedController.items.length,
-        itemBuilder: (context, index) {
-          return FeedItem(
-            feed: feedController.items[index],
-            onFavoriteTap: () async {
-              await feedController.toggleFavorite(
-                feedController.items[index].id!,
-              );
-              setState(() {});
-            },
-          );
-        },
-      ),
+      body: Obx(() {
+        return ListView.builder(
+          itemCount: feedController.items.length,
+          itemBuilder: (context, index) {
+            return FeedItem(
+              feed: feedController.items[index],
+              onFavoriteTap: () async {
+                await feedController.toggleFavorite(
+                  feedController.items[index].id!,
+                );
+              },
+            );
+          },
+        );
+      }),
     );
   }
 }

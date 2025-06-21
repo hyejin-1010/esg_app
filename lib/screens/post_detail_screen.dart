@@ -1,3 +1,4 @@
+import 'package:esg_app/components/feed_content.dart';
 import 'package:esg_app/controllers/feed_controller.dart';
 import 'package:esg_app/models/feed_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -253,54 +254,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(28),
                         ),
-                        child: RichText(
-                          text: TextSpan(
-                            children: _buildTextSpans(feed!.content, context),
-                          ),
-                        ),
+                        child: FeedContent(content: feed!.content),
                       ),
                     ],
                   ),
         ),
       ),
     );
-  }
-
-  List<TextSpan> _buildTextSpans(String content, BuildContext context) {
-    final List<TextSpan> textSpans = [];
-    final RegExp hashtagRegExp = RegExp(r'#\S+');
-    final defaultStyle = Theme.of(
-      context,
-    ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800, fontSize: 18);
-
-    int lastIndex = 0;
-    for (final match in hashtagRegExp.allMatches(content)) {
-      if (match.start > lastIndex) {
-        textSpans.add(
-          TextSpan(
-            text: content.substring(lastIndex, match.start),
-            style: defaultStyle,
-          ),
-        );
-      }
-
-      // Add hashtag with blue color
-      textSpans.add(
-        TextSpan(
-          text: match.group(0),
-          style: defaultStyle?.copyWith(color: Colors.blue),
-        ),
-      );
-
-      lastIndex = match.end;
-    }
-
-    if (lastIndex < content.length) {
-      textSpans.add(
-        TextSpan(text: content.substring(lastIndex), style: defaultStyle),
-      );
-    }
-
-    return textSpans;
   }
 }

@@ -28,24 +28,18 @@ class _FindPasswordScreenState extends State<FindPasswordScreen> {
   final _formKey = material.GlobalKey<material.FormState>();
 
   void onChangedEmail(String text) {
-    setState(() {
-      email = text;
-    });
+    setState(() => email = text);
   }
 
   void onChangedAuthCode(String text) {
-    setState(() {
-      authCode = text;
-    });
+    setState(() => authCode = text);
   }
 
   void onSubmitAuthCode() async {
     if (isLoading) return;
 
     try {
-      setState(() {
-        isLoading = true;
-      });
+      setState(() => isLoading = true);
 
       String? newErrorText = UtilValidators.email(email);
       if (newErrorText != null) throw Exception(newErrorText);
@@ -63,15 +57,11 @@ class _FindPasswordScreenState extends State<FindPasswordScreen> {
       );
       errorText = null;
 
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     } catch (error) {
       errorText = error.toString().replaceFirst('Exception: ', '');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
@@ -79,24 +69,18 @@ class _FindPasswordScreenState extends State<FindPasswordScreen> {
     if (isLoading) return;
 
     try {
-      setState(() {
-        isLoading = true;
-      });
+      setState(() => isLoading = true);
 
       if (_formKey.currentState!.validate()) {
         // 회원가입 성공 후 홈 화면으로 이동
         Get.toNamed('/find/new/password', arguments: {'email': email});
       }
 
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     } catch (error) {
       errorText = error.toString().replaceFirst('Exception: ', '');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 

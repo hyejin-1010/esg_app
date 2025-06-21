@@ -32,17 +32,18 @@ class MissionItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                mission.title,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-              ),
-              Text(mission.description, style: TextStyle(fontSize: 12)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  mission.title,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                ),
+                Text(mission.description, style: TextStyle(fontSize: 12)),
+              ],
+            ),
           ),
-          const Spacer(),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF65C466),

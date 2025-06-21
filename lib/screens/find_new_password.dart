@@ -34,15 +34,11 @@ class _FindNewPasswordScreenState extends State<FindNewPasswordScreen> {
   }
 
   void onChangedPassword(String text) {
-    setState(() {
-      password = text;
-    });
+    setState(() => password = text);
   }
 
   void onChangedCheckPassword(String text) {
-    setState(() {
-      checkPassword = text;
-    });
+    setState(() => checkPassword = text);
   }
 
   void onSubmit() async {
@@ -53,9 +49,7 @@ class _FindNewPasswordScreenState extends State<FindNewPasswordScreen> {
         throw Exception('비밀번호가 일치하지 않습니다.');
       }
 
-      setState(() {
-        isLoading = true;
-      });
+      setState(() => isLoading = true);
 
       if (_formKey.currentState!.validate()) {
         final success = await Get.find<AuthController>().authUpdatePassword(
@@ -69,15 +63,11 @@ class _FindNewPasswordScreenState extends State<FindNewPasswordScreen> {
         Get.offNamedUntil('/login', (route) => false);
       }
 
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     } catch (error) {
       errorText = error.toString().replaceFirst('Exception: ', '');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 

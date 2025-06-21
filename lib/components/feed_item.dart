@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:esg_app/components/feed_content.dart';
 import 'package:esg_app/constant/color.dart';
 import 'package:esg_app/models/feed_model.dart';
 import 'package:flutter/material.dart';
@@ -96,11 +97,7 @@ class _FeedItemState extends State<FeedItem> {
 
           Container(
             padding: const EdgeInsets.only(left: 8.0),
-            child: RichText(
-              text: TextSpan(
-                children: _buildTextSpans(widget.feed.content, context),
-              ),
-            ),
+            child: FeedContent(content: widget.feed.content),
           ),
         ],
       ),
@@ -157,43 +154,5 @@ class _FeedItemState extends State<FeedItem> {
           ],
         )
         : Container();
-  }
-
-  List<TextSpan> _buildTextSpans(String content, BuildContext context) {
-    final List<TextSpan> textSpans = [];
-    final RegExp hashtagRegExp = RegExp(r'#\S+');
-    final defaultStyle = Theme.of(
-      context,
-    ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800);
-
-    int lastIndex = 0;
-    for (final match in hashtagRegExp.allMatches(content)) {
-      if (match.start > lastIndex) {
-        textSpans.add(
-          TextSpan(
-            text: content.substring(lastIndex, match.start),
-            style: defaultStyle,
-          ),
-        );
-      }
-
-      // Add hashtag with blue color
-      textSpans.add(
-        TextSpan(
-          text: match.group(0),
-          style: defaultStyle?.copyWith(color: Colors.blue),
-        ),
-      );
-
-      lastIndex = match.end;
-    }
-
-    if (lastIndex < content.length) {
-      textSpans.add(
-        TextSpan(text: content.substring(lastIndex), style: defaultStyle),
-      );
-    }
-
-    return textSpans;
   }
 }
