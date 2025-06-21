@@ -3,6 +3,7 @@ class Feed {
   String content;
   int userId;
   final String? userName;
+  final String? userProfileImageUrl;
   final String createdAt;
   final String updatedAt;
   List<String> imagePathList; // 이미지 Path List
@@ -15,6 +16,7 @@ class Feed {
     required this.content,
     required this.userId,
     this.userName,
+    this.userProfileImageUrl,
     String? createdAt,
     String? updatedAt,
     List<String>? imagePathList,
@@ -31,6 +33,7 @@ class Feed {
       content: map['content'],
       userId: map['user_id'],
       userName: map['user_name'],
+      userProfileImageUrl: map['user_profile_image_url'],
       createdAt: map['created_at'],
       updatedAt: map['updated_at'],
       imagePathList:

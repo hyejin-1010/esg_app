@@ -49,7 +49,19 @@ class _FeedItemState extends State<FeedItem> {
                   color: Colors.white,
                 ),
                 alignment: Alignment.center,
-                child: Icon(Icons.people),
+                child:
+                    widget.feed.userProfileImageUrl != null
+                        ? ClipRRect(
+                          borderRadius: BorderRadius.circular(100.0),
+                          child: SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: Image.network(
+                              widget.feed.userProfileImageUrl!,
+                            ),
+                          ),
+                        )
+                        : Icon(Icons.person),
               ),
               const SizedBox(width: 4.0),
               Text(

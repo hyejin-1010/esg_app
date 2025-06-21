@@ -12,6 +12,7 @@ class FeedDao {
       '''
       SELECT f.*, 
         au.nickname as user_name,
+        au.profile_image_url as user_profile_image_url,
         CASE WHEN fav.user_id IS NOT NULL THEN 1 ELSE 0 END as is_favorite,
         (SELECT COUNT(*) FROM Favorite WHERE feed_id = f.id) as favorite_count
       FROM Feed f
